@@ -2,7 +2,7 @@
  * The base URL for the API.
  * @type {string}
  */
-export const API_URL: string = `emp-system.vercel.app`
+export const API_URL: string = `https://emp-system.vercel.app`
 
 /**
  * The default duration for a redirect.
