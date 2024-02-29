@@ -34,7 +34,7 @@ export default function Login() {
         localStorage.setItem('employee_data', JSON.stringify({ id, role, full_name }))
 
         setAlertMessage({ message: message, type: 'success' }) // Set success message
-        navigate(`dashboard`)
+        navigate(`/dashboard`)
       } else {
         setAlertMessage({ message: message, type: 'error' }) // Set error message
       }

@@ -41,7 +41,7 @@ export default function AddOfficeDetails() {
         setIsOfficeDetailsAdded(true)
         setAlertMessage({ message: message, type: 'success' }) // Set success message
 
-        navigate(`office_details`)
+        navigate(`/office_details`)
       } else {
         setAlertMessage({ message: message, type: 'error' }) // Set error message
       }

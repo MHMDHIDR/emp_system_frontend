@@ -55,7 +55,7 @@ export default function AddEmployee() {
         setUserAdded(true)
         setAlertMessage({ message: message, type: 'success' }) // Set success message
 
-        navigate(`add_emp`)
+        navigate(`/add_emp`)
       } else {
         setAlertMessage({ message: message, type: 'error' }) // Set error message
       }

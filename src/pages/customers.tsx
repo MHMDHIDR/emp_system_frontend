@@ -66,7 +66,7 @@ export default function Customers() {
 
       const { customer_added, message } = await response.data
 
-      if (customer_added) {
+      if (customer_added === true) {
         setCustomerAdded(true)
         setAlertMessage({ message: message, type: 'success' })
         navigate('/customers')
@@ -208,7 +208,7 @@ export default function Customers() {
                 onChange={e => setUsername(e.target.value)}
               />
               <input
-                type='password'
+                type='text'
                 placeholder='Password'
                 value={password}
                 onChange={e => setPassword(e.target.value)}
