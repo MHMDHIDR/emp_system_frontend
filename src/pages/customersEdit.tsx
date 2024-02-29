@@ -256,7 +256,7 @@ export default function CustomersEdit() {
           <div className={`alert ${alertMessage.type}`}>{alertMessage.message}</div>
         )}
 
-        <Link to='/dashboard' className='back-btn'>
+        <Link to={`/customers/${customersData?.id}`} className='back-btn'>
           العودة
         </Link>
 

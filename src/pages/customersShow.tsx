@@ -96,7 +96,7 @@ export default function CustomersShow() {
         {alertMessage.message && (
           <div className={`alert ${alertMessage.type}`}>{alertMessage.message}</div>
         )}
-        <Link to='/dashboard' className='back-btn'>
+        <Link to='/customers' className='back-btn'>
           العودة
         </Link>
         {/* Add modal code here if needed */}

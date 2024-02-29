@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { customerType, empType, receiptsType, serviceType } from '../types'
+import {
+  customerType,
+  empType,
+  getEmployeeNameType,
+  receiptsType,
+  serviceType
+} from '../types'
 import {
   fetchAllEmployees,
   fetchCustomers,
   formatDate,
+  getEmployeeName,
   getServiceData
 } from '../utils/helpers'
 import { LoadingPage } from '../components/Loading'
@@ -26,6 +33,8 @@ const ServiceEdit = () => {
   const [allClients, setAllClients] = useState<customerType[]>([])
   const [allEmployees, setAllEmployees] = useState<empType[]>([])
   const [serviceUpdated, setServiceUpdated] = useState(false)
+  const [employeeName, setEmployeeName] = useState('')
+  const [loadingName, setLoadingName] = useState(true)
   const [alertMessage, setAlertMessage] = useState({ message: '', type: '' })
   const [formData, setFormData] = useState({
     id: '',
@@ -60,6 +69,12 @@ const ServiceEdit = () => {
       const serviceData = await getServiceData(Number(serviceId))
       const service = serviceData?.service
       const receipt = serviceData?.receipt as receiptsType[]
+
+      const { employeeName }: { employeeName: getEmployeeNameType } =
+        await getEmployeeName(service?.employee_id as number)
+
+      setEmployeeName(employeeName.name)
+      setLoadingName(employeeName.isLoading)
 
       setServiceData(service)
       setFormData({
@@ -136,19 +151,19 @@ const ServiceEdit = () => {
       <div className='page-container'>
         <h2>تعديل الخدمة</h2>
 
-        {!serviceData ? (
+        {!serviceData && !loadingName ? (
           <LoadingPage />
         ) : (
           <form dir='rtl' onSubmit={editService}>
             <label htmlFor='employee_id'>الموظف:</label>
-            <span className='data-box'>{currentEmpolyee.name}</span>
+            <span className='data-box'>{employeeName}</span>
 
             <label htmlFor='client_id'>العميل:</label>
             {allClients && allClients.length > 0 ? (
               <select
                 id='client_id'
                 name='client_id'
-                defaultValue={serviceData.client_id ? serviceData.client_id : ''}
+                defaultValue={serviceData?.client_id ? serviceData.client_id : ''}
                 onChange={e => {
                   setFormData({ ...formData, client_id: e.target.value })
                 }}
