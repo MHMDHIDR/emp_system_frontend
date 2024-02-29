@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { getEmployeeName } from '../utils/helpers'
-import { customerCredentialsType, customerType, getEmployeeNameType } from '../types'
+import { fetchAllEmployees, getEmployeeName } from '../utils/helpers'
+import {
+  customerCredentialsType,
+  customerType,
+  empType,
+  getEmployeeNameType
+} from '../types'
 import axios from 'axios'
 import { API_URL } from '../utils/constants'
 import { LoadingPage } from '../components/Loading'
@@ -16,6 +21,8 @@ export default function CustomersEdit() {
   const [credentials, setCredentials] = useState<customerCredentialsType[]>()
   const [howKnow, setHowKnow] = useState('')
   const [employeeName, setEmployeeName] = useState('')
+  const [employee_id, setEmployeeId] = useState('')
+  const [allEmployees, setAllEmployees] = useState<empType[]>([])
   //   Forms states
   const [userUpdated, setUserUpdated] = useState(false)
   const [alertMessage, setAlertMessage] = useState({ message: '', type: '' })
@@ -26,6 +33,29 @@ export default function CustomersEdit() {
 
   useEffect(() => {
     fetchCustomerById(Number(customerId))
+
+    // fetch all employees
+    const getRepresentatives = async () => {
+      const representatives = await fetchAllEmployees()
+
+      const uniqueRepresentative =
+        typeof representatives === 'object' && Array.isArray(representatives)
+          ? (Array.from(
+              new Set(representatives.map(representative => representative.full_name))
+            )
+              .map(fullName => {
+                return representatives.find(
+                  representative =>
+                    representative.full_name === fullName &&
+                    representative.role !== 'admin'
+                )
+              })
+              .filter(representative => representative !== undefined) as empType[])
+          : []
+
+      setAllEmployees(uniqueRepresentative as empType[])
+    }
+    getRepresentatives()
   }, [])
 
   async function fetchCustomerById(id: number) {
@@ -58,7 +88,8 @@ export default function CustomersEdit() {
         email,
         job,
         credentials,
-        howKnow
+        howKnow,
+        employee_id
       })
 
       const { customer_updated, message } = await response.data
@@ -169,8 +200,38 @@ export default function CustomersEdit() {
               onChange={e => setJob(e.target.value)}
               required
             />
-            <label htmlFor='responsible'>الموظف المسئول:</label>
-            <span className='data-box'>{employeeName}</span>
+
+            {/* <label htmlFor='responsible'>الموظف المسئول:</label>
+            <span className='data-box'>{employeeName}</span> */}
+
+            <label htmlFor='employee_id'>
+              اختر الموظف المسؤول:
+              <small style={{ fontSize: 10 }}>(اختياري)</small>
+            </label>
+            {allEmployees && allEmployees.length > 0 ? (
+              <select
+                id='employee_id'
+                name='employee_id'
+                defaultValue={
+                  allEmployees.find(employee => employee.full_name === employeeName)
+                    ?.employee_id
+                }
+                onChange={e => setEmployeeId(e.target.value)}
+              >
+                <option value=''>اختر الموظف المسؤول</option>
+                {/* the selected employee default is the customer's employee_id */}
+                {allEmployees
+                  .filter(employee => employee.employee_id !== customersData.id)
+                  .map((employee, index) => (
+                    <option key={index} value={employee.employee_id}>
+                      {employee.full_name}
+                    </option>
+                  ))}
+              </select>
+            ) : (
+              <small>لا يوجد مناديب بعد</small>
+            )}
+
             <label htmlFor='credintials'>بيانات الدخول للانظمة:</label>
             <div>
               <strong>بيانات الدخول للانظمة:</strong>{' '}
