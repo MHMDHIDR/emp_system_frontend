@@ -21,6 +21,11 @@ export default function CustomersShow() {
           `${API_URL}/customers/byId/${customerId}`
         )
 
+        const { employeeName }: { employeeName: getEmployeeNameType } =
+          await getEmployeeName(data?.employee_id)
+        setEmployeeName(employeeName.name)
+        setLoading(employeeName.isLoading)
+
         setCustomersData(data)
         setLoading(false)
       } catch (error: any) {
@@ -34,22 +39,6 @@ export default function CustomersShow() {
     }
 
     fetchData()
-
-    const currentEmployeeData = JSON.parse(localStorage.getItem('employee_data') || '{}')
-    const { id } = currentEmployeeData
-
-    async function fetchEmployeeName() {
-      try {
-        const { employeeName }: { employeeName: getEmployeeNameType } =
-          await getEmployeeName(id)
-        setEmployeeName(employeeName.name)
-        setLoading(employeeName.isLoading)
-      } catch (error: any) {
-        console.error('Error fetching employee name:', error.message)
-      }
-    }
-
-    fetchEmployeeName()
   }, [customerId])
 
   return (

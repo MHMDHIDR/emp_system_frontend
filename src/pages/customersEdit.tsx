@@ -24,30 +24,24 @@ export default function CustomersEdit() {
   const { customerId } = useParams()
   const navigate = useNavigate()
 
-  const currentEmpolyee = {
-    name: JSON.parse(localStorage.getItem('employee_data') as string).full_name ?? null,
-    id: Number(JSON.parse(localStorage.getItem('employee_data') as string).id) ?? null
-  }
-
   useEffect(() => {
     fetchCustomerById(Number(customerId))
-
-    const empName = async () => {
-      const { employeeName }: { employeeName: getEmployeeNameType } =
-        await getEmployeeName(currentEmpolyee.id)
-
-      setEmployeeName(employeeName.name)
-      setLoading(employeeName.isLoading)
-    }
-    empName()
   }, [])
 
   async function fetchCustomerById(id: number) {
     try {
-      const { data } = await axios.get(`${API_URL}/customers/byId/${id}`)
+      const { data }: { data: customerType } = await axios.get(
+        `${API_URL}/customers/byId/${id}`
+      )
+
+      const { employeeName }: { employeeName: getEmployeeNameType } =
+        await getEmployeeName(data?.employee_id)
+
+      setEmployeeName(employeeName.name)
+      setLoading(employeeName.isLoading)
 
       setCustomersData(data)
-      setCredentials(JSON.parse(data.customer_credentials))
+      setCredentials(JSON.parse(String(data.customer_credentials)))
     } catch (error: any) {
       console.error('Error fetching employee by id:', error.message)
     }
