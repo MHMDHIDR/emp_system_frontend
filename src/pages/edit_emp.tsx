@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import { Link, useParams } from 'react-router-dom'
-import { API_URL, DEFAULT_DURATION } from '../utils/constants'
-import { redirect } from '../utils/helpers'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { API_URL } from '../utils/constants'
 import ErrorPage from './error_page'
 import { empType } from '../types'
 
@@ -27,6 +26,7 @@ export default function AddEmp() {
   const [alertMessage, setAlertMessage] = useState({ message: '', type: '' })
 
   const [employeeData, setEmployeeData] = useState<empType>()
+  const navigate = useNavigate()
 
   async function fetchEmployeeById(id: string) {
     try {
@@ -72,7 +72,7 @@ export default function AddEmp() {
         setUserUpdated(true)
         setAlertMessage({ message: message, type: 'success' }) // Set success message
 
-        redirect(`/dashboard`, DEFAULT_DURATION / 2)
+        navigate('/dashboard')
       } else {
         setAlertMessage({ message: message, type: 'error' }) // Set error message
       }

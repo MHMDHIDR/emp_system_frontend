@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-import { API_URL, DEFAULT_DURATION } from '../utils/constants'
+import { API_URL } from '../utils/constants'
 
 export default function Login() {
   const [userLoggedIn, setUserLoggedIn] = useState(false)
@@ -34,9 +34,7 @@ export default function Login() {
         localStorage.setItem('employee_data', JSON.stringify({ id, role, full_name }))
 
         setAlertMessage({ message: message, type: 'success' }) // Set success message
-
-        // redirect(role === 'admin' ? `/dashboard` : `/customers`, DEFAULT_DURATION / 2)
-        navigate(role === 'admin' ? `/dashboard` : `/customers`)
+        navigate(`dashboard`)
       } else {
         setAlertMessage({ message: message, type: 'error' }) // Set error message
       }

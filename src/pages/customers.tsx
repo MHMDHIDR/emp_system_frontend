@@ -1,6 +1,6 @@
 import React, { Suspense, useState, useEffect } from 'react'
-import { Link, redirect } from 'react-router-dom'
-import { API_URL, DEFAULT_DURATION } from '../utils/constants'
+import { Link, useNavigate } from 'react-router-dom'
+import { API_URL } from '../utils/constants'
 import axios from 'axios'
 import type { customerType, getEmployeeNameType, customerCredentialsType } from '../types'
 import { arabicDate, fetchCustomers } from '../utils/helpers'
@@ -27,6 +27,8 @@ export default function Customers() {
   const [employeeNameResult, setEmployeeNameResult] =
     useState<getEmployeeNameType | null>({ name: '', isLoading: true })
   const [allClients, setAllClients] = useState<customerType[]>([])
+
+  const navigate = useNavigate()
 
   const handleDelete = (index: number) => {
     const updatedCredentialsList = credentialsList.filter((_, i) => i !== index)
@@ -67,7 +69,7 @@ export default function Customers() {
       if (customer_added) {
         setCustomerAdded(true)
         setAlertMessage({ message: message, type: 'success' })
-        redirect(`/dashboard`, DEFAULT_DURATION / 2)
+        navigate('/customers')
       } else {
         setAlertMessage({ message: message, type: 'error' })
       }
@@ -109,7 +111,7 @@ export default function Customers() {
   async function deleteCustomer(empId: number) {
     try {
       const response = await axios.delete(`${API_URL}/customers/delete_customer/${empId}`)
-      const { customer_deleted, message } = await response.data
+      const { customer_deleted, message } = await response?.data
       if (customer_deleted) {
         setAlertMessage({ message: message, type: 'success' })
         await getCustomers()

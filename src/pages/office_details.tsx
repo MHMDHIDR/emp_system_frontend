@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import { Link } from 'react-router-dom'
-import { API_URL, DEFAULT_DURATION } from '../utils/constants'
-import { getAllOfficeDetails, redirect } from '../utils/helpers'
+import { Link, useNavigate } from 'react-router-dom'
+import { API_URL } from '../utils/constants'
+import { getAllOfficeDetails } from '../utils/helpers'
 import type { officeDetailsType } from '../types'
 
 export default function AddOfficeDetails() {
@@ -17,6 +17,7 @@ export default function AddOfficeDetails() {
   const [isOfficeDetailsAdded, setIsOfficeDetailsAdded] = useState(false)
   const [alertMessage, setAlertMessage] = useState({ message: '', type: '' })
   const [allOfficeDetails, setAllOfficeDetails] = useState<officeDetailsType[]>([])
+  const navigate = useNavigate()
 
   async function updateOfficeDetails(e: { preventDefault: () => void }) {
     e.preventDefault()
@@ -40,7 +41,7 @@ export default function AddOfficeDetails() {
         setIsOfficeDetailsAdded(true)
         setAlertMessage({ message: message, type: 'success' }) // Set success message
 
-        redirect(`/office_details`, DEFAULT_DURATION / 2)
+        navigate(`office_details`)
       } else {
         setAlertMessage({ message: message, type: 'error' }) // Set error message
       }

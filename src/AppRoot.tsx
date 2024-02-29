@@ -35,14 +35,26 @@ export default function AppRoot() {
       }
     }
 
+    // Prevent opening inspect tool using keyboard shortcut Ctrl+Shift+I
+    const handleInspect = (event: {
+      ctrlKey: any
+      shiftKey: any
+      code: string
+      preventDefault: () => void
+    }) => {
+      if (event.ctrlKey && event.shiftKey && event.code === 'KeyI') {
+        event.preventDefault()
+      }
+    }
+
     window.addEventListener('keydown', handleZoom)
+    window.addEventListener('keydown', handleInspect)
 
     return () => {
       window.removeEventListener('keydown', handleZoom)
+      window.removeEventListener('keydown', handleInspect)
     }
   }, [])
-
-  //<Route path='*' element={<ErrorPage />} />
 
   return (
     <>

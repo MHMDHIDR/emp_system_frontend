@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import { Link } from 'react-router-dom'
-import { API_URL, DEFAULT_DURATION } from '../utils/constants'
-import { arabicDate, fetchAllEmployees, getArabicRole, redirect } from '../utils/helpers'
+import { Link, useNavigate } from 'react-router-dom'
+import { API_URL } from '../utils/constants'
+import { arabicDate, fetchAllEmployees, getArabicRole } from '../utils/helpers'
 import { empType } from '../types'
 
 export default function AddEmployee() {
@@ -23,6 +23,8 @@ export default function AddEmployee() {
   const [alertMessage, setAlertMessage] = useState({ message: '', type: '' })
 
   const [allEmployees, setAllEmployees] = useState<empType[]>([])
+
+  const navigate = useNavigate()
 
   async function addUser(e: { preventDefault: () => void }) {
     e.preventDefault() // no refresh
@@ -53,7 +55,7 @@ export default function AddEmployee() {
         setUserAdded(true)
         setAlertMessage({ message: message, type: 'success' }) // Set success message
 
-        redirect(`/add_emp`, DEFAULT_DURATION / 2)
+        navigate(`add_emp`)
       } else {
         setAlertMessage({ message: message, type: 'error' }) // Set error message
       }

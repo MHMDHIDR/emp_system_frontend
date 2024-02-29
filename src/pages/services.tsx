@@ -13,6 +13,7 @@ import { AddIcon, AddCustomerIcon } from '../components/Icons'
 
 const Services = () => {
   const { customerId } = useParams()
+  const today = new Date().toISOString().split('T')[0] // Today's current date
 
   const currentEmpolyee = {
     name: JSON.parse(localStorage.getItem('employee_data') as string).full_name ?? null,
@@ -29,7 +30,7 @@ const Services = () => {
     client_id: '',
     service_name: '',
     service_total_price: '',
-    created_at: '',
+    created_at: today,
     ends_at: '',
     service_details: ''
   })
@@ -71,9 +72,14 @@ const Services = () => {
   const addService = async (e: { preventDefault: () => void }) => {
     e.preventDefault()
 
+    const startDate = new Date(formData.created_at).toISOString().split('T')[0]
+    const startDateToSend =
+      startDate !== today ? startDate : new Date().toISOString().split('T')[0]
+
     try {
       const response = await axios.post(`${API_URL}/services/addService`, {
-        ...formData
+        ...formData,
+        created_at: startDateToSend
       })
 
       const { service_added, message } = await response.data

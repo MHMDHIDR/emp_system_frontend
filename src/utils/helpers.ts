@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { API_URL, DEFAULT_DURATION } from './constants'
+import { API_URL } from './constants'
 import {
   customerType,
   empType,
@@ -9,17 +9,6 @@ import {
   receiptsType,
   serviceType
 } from '../types.js'
-
-/**
- * A function to redirect to a new page
- * @param {string} url
- * @param {number} time
- * @returns void
- */
-export const redirect = (url: any, time: number = DEFAULT_DURATION) =>
-  window.location
-    ? setTimeout(() => (window.location = url), time)
-    : setTimeout(() => (window.location.replace = url), time)
 
 /**
  *  Method That Formats Date to Locale Date String
@@ -171,7 +160,7 @@ export const getClientName = async (customerId: number) => {
 export const fetchCustomers = async () => {
   try {
     const response = await axios.get(`${API_URL}/customers`)
-    const { rows: customers }: { rows: customerType[] } = await response.data
+    const { rows: customers }: { rows: customerType[] } = await response?.data
 
     const customersWithEmployeeName = await Promise.all(
       customers.map(async client => {
@@ -188,10 +177,10 @@ export const fetchCustomers = async () => {
     return { customersWithEmployeeName }
   } catch (error: any) {
     console.error('Error fetching customers:', error.message)
-    return {
-      message: error?.response.data.message ?? 'عفواً! فشل جلب بيانات العملاء!',
-      type: 'error'
-    }
+    // return {
+    //   message: error?.response.data.message ?? 'عفواً! فشل جلب بيانات العملاء!',
+    //   type: 'error'
+    // }
   }
 }
 

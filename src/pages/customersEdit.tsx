@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { getEmployeeName, redirect } from '../utils/helpers'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { getEmployeeName } from '../utils/helpers'
 import { customerCredentialsType, customerType, getEmployeeNameType } from '../types'
 import axios from 'axios'
-import { API_URL, DEFAULT_DURATION } from '../utils/constants'
+import { API_URL } from '../utils/constants'
 import { LoadingPage } from '../components/Loading'
 
 export default function CustomersEdit() {
@@ -22,6 +22,7 @@ export default function CustomersEdit() {
   const [_loading, setLoading] = useState(true)
 
   const { customerId } = useParams()
+  const navigate = useNavigate()
 
   const currentEmpolyee = {
     name: JSON.parse(localStorage.getItem('employee_data') as string).full_name ?? null,
@@ -72,7 +73,7 @@ export default function CustomersEdit() {
         setUserUpdated(true)
         setAlertMessage({ message: message, type: 'success' }) // Set success message
 
-        redirect(`/dashboard`, DEFAULT_DURATION / 2)
+        navigate('/customers')
       } else {
         setAlertMessage({ message: message, type: 'error' }) // Set error message
       }

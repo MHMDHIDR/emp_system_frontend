@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { customerType, empType, receiptsType, serviceType } from '../types'
 import {
   fetchAllEmployees,
   fetchCustomers,
   formatDate,
-  getServiceData,
-  redirect
+  getServiceData
 } from '../utils/helpers'
 import { LoadingPage } from '../components/Loading'
 import { AddCustomerIcon } from '../components/Icons'
-import { API_URL, DEFAULT_DURATION } from '../utils/constants'
+import { API_URL } from '../utils/constants'
 import axios from 'axios'
 
 const ServiceEdit = () => {
   const { id: serviceId } = useParams()
+  const navigate = useNavigate()
+
   const currentEmpolyee = {
     name: JSON.parse(localStorage.getItem('employee_data') as string).full_name ?? null,
     id: Number(JSON.parse(localStorage.getItem('employee_data') as string).id) ?? null,
@@ -117,7 +118,7 @@ const ServiceEdit = () => {
         setServiceUpdated(true)
         setAlertMessage({ message: message, type: 'success' }) // Set success message
 
-        redirect(`/service/${serviceId}`, DEFAULT_DURATION / 2)
+        navigate(`/service/${serviceId}`)
       } else {
         setAlertMessage({ message: message, type: 'error' }) // Set error message
       }
