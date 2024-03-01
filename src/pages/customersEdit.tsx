@@ -21,7 +21,7 @@ export default function CustomersEdit() {
   const [credentials, setCredentials] = useState<customerCredentialsType[]>()
   const [howKnow, setHowKnow] = useState('')
   const [employeeName, setEmployeeName] = useState('')
-  const [employee_id, setEmployeeId] = useState('')
+  const [employee_id, setEmployeeId] = useState(0)
   const [allEmployees, setAllEmployees] = useState<empType[]>([])
   //   Forms states
   const [userUpdated, setUserUpdated] = useState(false)
@@ -68,6 +68,7 @@ export default function CustomersEdit() {
         await getEmployeeName(data?.employee_id)
 
       setEmployeeName(employeeName.name)
+      setEmployeeId(data.employee_id)
       setLoading(employeeName.isLoading)
 
       setCustomersData(data)
@@ -76,6 +77,8 @@ export default function CustomersEdit() {
       console.error('Error fetching employee by id:', error.message)
     }
   }
+
+  console.log(employee_id)
 
   async function editCustomer(e: { preventDefault: () => void }) {
     e.preventDefault() // no refresh
@@ -89,7 +92,7 @@ export default function CustomersEdit() {
         job,
         credentials,
         howKnow,
-        employee_id
+        employee_id: employee_id || customersData?.employee_id
       })
 
       const { customer_updated, message } = await response.data
@@ -216,7 +219,7 @@ export default function CustomersEdit() {
                   allEmployees.find(employee => employee.full_name === employeeName)
                     ?.employee_id
                 }
-                onChange={e => setEmployeeId(e.target.value)}
+                onChange={e => setEmployeeId(Number(e.target.value))}
               >
                 <option value=''>اختر الموظف المسؤول</option>
                 {/* the selected employee default is the customer's employee_id */}

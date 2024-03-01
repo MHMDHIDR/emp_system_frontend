@@ -12,6 +12,12 @@ export default function Invoices() {
   const [allOfficeDetails, setAllOfficeDetails] = useState<officeDetailsType[]>([])
   const [selectAll, setSelectAll] = useState(false)
 
+  const currentEmpolyee = {
+    name: JSON.parse(localStorage.getItem('employee_data') as string).full_name ?? null,
+    id: Number(JSON.parse(localStorage.getItem('employee_data') as string).id) ?? null,
+    role: JSON.parse(localStorage.getItem('employee_data') as string).role ?? 'employee'
+  }
+
   const getAllReceipts = async () => {
     const receipts = (await fetchReceipts({
       customerId: Number(customerId)
@@ -111,29 +117,39 @@ export default function Invoices() {
                 </td>
               </tr>
             ) : (
-              receipts.map(receipt => (
-                <tr key={receipt.receipt_id}>
-                  <td>
-                    <input
-                      type='checkbox'
-                      checked={receipt.selected || false}
-                      onChange={() => handleCheckboxChange(receipt.receipt_id)}
-                      style={{
-                        cursor: 'pointer',
-                        height: '20px',
-                        width: '100%',
-                        marginInline: 'auto'
-                      }}
-                    />
-                  </td>
-                  <td>{receipt.receipt_id}</td>
-                  <td>{arabicDate(receipt.created_at)}</td>
-                  <td>{receipt.client_name}</td>
-                  <td>{receipt.service_name}</td>
-                  <td>{receipt.service_paid_amount}</td>
-                  <td>{receipt.full_name}</td>
-                </tr>
-              ))
+              receipts.map(receipt => {
+                if (
+                  currentEmpolyee.role === 'admin' || // Check if current employee is admin
+                  receipt.employee_id === currentEmpolyee.id // Or if the receipt belongs to the current employee
+                ) {
+                  return (
+                    <tr key={receipt.receipt_id}>
+                      <td>
+                        <input
+                          type='checkbox'
+                          checked={receipt.selected || false}
+                          onChange={() => handleCheckboxChange(receipt.receipt_id)}
+                          style={{
+                            cursor: 'pointer',
+                            height: '20px',
+                            width: '100%',
+                            marginInline: 'auto'
+                          }}
+                        />
+                      </td>
+                      <td>{receipt.receipt_id}</td>
+                      <td>{arabicDate(receipt.created_at)}</td>
+                      <td>{receipt.client_name}</td>
+                      <td>{receipt.service_name}</td>
+                      <td>{receipt.service_paid_amount}</td>
+                      <td>{receipt.full_name}</td>
+                    </tr>
+                  )
+                } else {
+                  // If the receipt doesn't match the conditions, return null
+                  return null
+                }
+              })
             )}
           </tbody>
         </table>

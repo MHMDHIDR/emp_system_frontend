@@ -111,7 +111,7 @@ export default function Customers() {
   async function deleteCustomer(empId: number) {
     try {
       const response = await axios.delete(`${API_URL}/customers/delete_customer/${empId}`)
-      const { customer_deleted, message } = await response?.data
+      const { customer_deleted, message } = await response.data
       if (customer_deleted) {
         setAlertMessage({ message: message, type: 'success' })
         await getCustomers()
@@ -208,7 +208,7 @@ export default function Customers() {
                 onChange={e => setUsername(e.target.value)}
               />
               <input
-                type='text'
+                type='password'
                 placeholder='Password'
                 value={password}
                 onChange={e => setPassword(e.target.value)}
