@@ -151,7 +151,7 @@ const ServiceEdit = () => {
       <div className='page-container'>
         <h2>تعديل الخدمة</h2>
 
-        {!serviceData && !loadingName ? (
+        {!serviceData || loadingName ? (
           <LoadingPage />
         ) : (
           <form dir='rtl' onSubmit={editService}>
@@ -257,7 +257,9 @@ const ServiceEdit = () => {
                 id='unpaid'
                 name='service_payment_status'
                 value='unpaid'
-                onChange={handleChange}
+                onChange={() => {
+                  setFormData({ ...formData, service_payment_status: 'unpaid' })
+                }}
                 defaultChecked={serviceData?.service_payment_status === 'unpaid'}
                 disabled={
                   serviceData?.service_total_price ===
@@ -273,7 +275,9 @@ const ServiceEdit = () => {
                 id='partially-paid'
                 name='service_payment_status'
                 value='partially-paid'
-                onChange={handleChange}
+                onChange={() => {
+                  setFormData({ ...formData, service_payment_status: 'partially-paid' })
+                }}
                 defaultChecked={serviceData?.service_payment_status === 'partially-paid'}
                 disabled={
                   serviceData?.service_total_price ===
@@ -289,7 +293,9 @@ const ServiceEdit = () => {
                 id='paid'
                 name='service_payment_status'
                 value='paid'
-                onChange={handleChange}
+                onChange={() => {
+                  setFormData({ ...formData, service_payment_status: 'paid' })
+                }}
                 defaultChecked={
                   serviceData?.service_payment_status === 'paid' ||
                   serviceData?.service_total_price ===
@@ -298,26 +304,25 @@ const ServiceEdit = () => {
               />
             </div>
 
-            {/* on partially-paid checked then show input number inputMode='numeric' then I can type the amount paid  */}
-            {{ ...formData }?.service_payment_status === 'partially-paid' &&
-              serviceData?.service_payment_status === 'partially-paid' && (
-                <>
-                  <label htmlFor='service_paid_amount'>المبلغ المدفوع الجديد:</label>
-                  <input
-                    type='number'
-                    inputMode='numeric'
-                    pattern='[0-9]*'
-                    min='0'
-                    max={serviceData?.service_total_price}
-                    id='service_paid_amount'
-                    name='service_paid_amount'
-                    placeholder={`المبلغ المدفوع حتى الآن: ${formData.service_paid_amount} درهم`}
-                    aria-placeholder={formData.service_paid_amount}
-                    onChange={handleChange}
-                    required
-                  />
-                </>
-              )}
+            {/* Conditional rendering of input for partially-paid status */}
+            {formData.service_payment_status === 'partially-paid' && (
+              <>
+                <label htmlFor='service_paid_amount'>المبلغ المدفوع الجديد:</label>
+                <input
+                  type='number'
+                  inputMode='numeric'
+                  pattern='[0-9]*'
+                  min='0'
+                  max={serviceData?.service_total_price}
+                  id='service_paid_amount'
+                  name='service_paid_amount'
+                  placeholder={`المبلغ المدفوع حتى الآن: ${formData.service_paid_amount} درهم`}
+                  aria-placeholder={formData.service_paid_amount}
+                  onChange={handleChange}
+                  required
+                />
+              </>
+            )}
 
             <label htmlFor='created_at'>تاريخ الإنشاء:</label>
             <input

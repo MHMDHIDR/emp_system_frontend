@@ -70,7 +70,12 @@ const PrintContent = forwardRef<
     }}
   >
     <div
-      style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}
+      style={{
+        fontSize: '14px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        marginBottom: '20px'
+      }}
     >
       <div>
         <h3>{officeDetails.en_office_name}</h3>
@@ -81,6 +86,11 @@ const PrintContent = forwardRef<
           <small>الرقم الضريبي: {officeDetails.office_tax_number}</small>
         )}
       </div>
+      <img
+        src='/public/System_typing_Center.png'
+        alt='System Typing Center'
+        style={{ width: '150px', height: '150px', objectFit: 'contain' }}
+      />
       <div style={{ textAlign: 'right' }}>
         <h3>{officeDetails.ar_office_name}</h3>
         <p>{officeDetails.ar_office_address}</p>
