@@ -13,7 +13,7 @@ if (require('electron-squirrel-startup')) {
 const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    icon: `public/System_typing_Center.ico`,
+    icon: `${__dirname}/../images/System_typing_Center.png`,
     height: 600,
     width: 800,
     webPreferences: {

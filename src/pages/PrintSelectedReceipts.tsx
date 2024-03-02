@@ -87,7 +87,7 @@ const PrintContent = forwardRef<
         )}
       </div>
       <img
-        src='/public/System_typing_Center.png'
+        src='public/System_typing_Center.png'
         alt='System Typing Center'
         style={{ width: '150px', height: '150px', objectFit: 'contain' }}
       />
