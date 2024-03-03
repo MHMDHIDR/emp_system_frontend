@@ -5,7 +5,8 @@ import { app, BrowserWindow } from 'electron'
 // whether you're running in development or production).
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string
-const IconPath = `${__dirname.split('/out')[0]}/images/System_typing_Center.icns`
+// const IconPath = `${__dirname.split('/out')[0]}/images/System_typing_Center.icns`
+const IconPath = `/Applications/XAMPP/xamppfiles/htdocs/emp_system_frontend/images/System_typing_Center.icns`
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {

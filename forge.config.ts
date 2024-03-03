@@ -14,7 +14,7 @@ import { rendererConfig } from './webpack.renderer.config'
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
-    icon: '/Applications/XAMPP/xamppfiles/htdocs/emp_system_frontend/images/System_typing_Center'
+    icon: '/Applications/XAMPP/xamppfiles/htdocs/emp_system_frontend/images/System_typing_Center.icns'
   },
   rebuildConfig: {},
   makers: [
