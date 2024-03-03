@@ -3,6 +3,8 @@ import { useReactToPrint } from 'react-to-print'
 import { arabicDate, constructReferenceNumber, formattedPrice } from '../utils/helpers'
 import type { officeDetailsType, receiptsType } from '../types'
 
+const IconPath = `${__dirname.split('/out')[0]}/images/System_typing_Center.png`
+
 const PrintSelectedReceipts = ({
   selectedReceipts,
   officeDetails
@@ -87,7 +89,7 @@ const PrintContent = forwardRef<
         )}
       </div>
       <img
-        src='public/System_typing_Center.png'
+        src={IconPath}
         alt='System Typing Center'
         style={{ width: '150px', height: '150px', objectFit: 'contain' }}
       />
