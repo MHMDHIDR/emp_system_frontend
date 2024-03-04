@@ -42,11 +42,15 @@ export default function Invoices() {
     const isChecked = event.target.checked
     setSelectAll(isChecked)
 
-    const updatedReceipts = selectedReceipts.map(receipt => {
-      return { ...receipt, selected: isChecked }
-    })
-    setReceipts(updatedReceipts)
-    setSelectedReceipts(isChecked ? selectedReceipts : [])
+    const updatedSelectedReceipts = isChecked
+      ? receipts.filter(receipt => {
+          return (
+            currentEmpolyee.role === 'admin' || receipt.employee_id === currentEmpolyee.id
+          )
+        })
+      : []
+
+    setSelectedReceipts(updatedSelectedReceipts)
   }
 
   const handleCheckboxChange = (receiptId: number) => {
