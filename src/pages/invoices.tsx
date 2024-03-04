@@ -42,11 +42,11 @@ export default function Invoices() {
     const isChecked = event.target.checked
     setSelectAll(isChecked)
 
-    const updatedReceipts = receipts.map(receipt => {
+    const updatedReceipts = selectedReceipts.map(receipt => {
       return { ...receipt, selected: isChecked }
     })
     setReceipts(updatedReceipts)
-    setSelectedReceipts(isChecked ? receipts : [])
+    setSelectedReceipts(isChecked ? selectedReceipts : [])
   }
 
   const handleCheckboxChange = (receiptId: number) => {
