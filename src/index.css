@@ -35,6 +35,22 @@ input[type='date'] {
   width: 100%;
 }
 
+.page-container {
+  max-width: 100vw;
+  margin: 0 auto;
+  padding: 30px 0;
+}
+
+.page-container-small {
+  max-width: 900px;
+  margin-left: auto;
+}
+
+.page-container-small-center {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
 h2 {
   text-align: center;
   margin-bottom: 20px;
@@ -110,6 +126,20 @@ input[type='submit']:hover {
   color: #fff;
   padding: 10px 20px;
   border-radius: 5px;
+  cursor: pointer;
+  margin-block: 0.25rem;
+}
+
+/* back-btn fixed on the top left */
+.back-btn.fixed {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  border: 2px solid #454545;
 }
 
 .back-btn:hover {
@@ -238,11 +268,6 @@ input[type='number']::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-.page-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
 
 .table-container {
   overflow-x: auto;
@@ -320,11 +345,6 @@ tr:hover {
   background-color: #f8d7da;
   color: #721c24;
   border-color: #f5c6cb;
-}
-.page-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
 }
 
 h2 {
@@ -418,12 +438,6 @@ td:last-child {
 
 .update-btn:hover {
   background-color: #005f6b;
-}
-
-.back-btn {
-  display: block;
-  margin-top: 20px;
-  text-align: center;
 }
 
 @keyframes bounce {

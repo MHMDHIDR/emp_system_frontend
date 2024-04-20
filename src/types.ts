@@ -1,4 +1,5 @@
 export type empType = {
+  id: number
   employee_id: number
   username: string
   role: 'admin' | 'employee' | 'accountant' | 'representative'
@@ -30,6 +31,17 @@ export type customerType = {
   employeeName?: getEmployeeNameType
 }
 
+export type expensesType = {
+  id: number
+  amount: number
+  expense_name: string
+  description: string
+  created_at: string
+  expense_added: boolean
+  expense_deleted: boolean
+  message: string
+}
+
 export type serviceType = {
   id: number
   employee_id: number
@@ -41,10 +53,12 @@ export type serviceType = {
   service_name: string
   service_total_price: number
   service_payment_status: 'paid' | 'unpaid' | 'partially-paid'
+  service_status: 'not-started' | 'in-process' | 'completed'
   created_at: string
   ends_at: string
   service_details: string
   receipts: receiptsType[]
+  sub_services: subServicesType[]
 }
 
 export type receiptsType = {
@@ -56,8 +70,10 @@ export type receiptsType = {
   /** لإسترجاع بيانات الخدمة نفسها */
   service_id: serviceType['id']
   service_name: serviceType['service_name']
-  /** الموظف اللي اضاف الخدمة */
   service_paid_amount: number
+  service_remaining_amount: number
+  service_total_price: number
+  /** الموظف اللي اضاف الخدمة */
   employee_id: number
   full_name: empType['full_name']
   created_at: string
@@ -86,4 +102,18 @@ export type customerCredentialsType = {
   password: string
 }
 
+export type subServicesType = {
+  id: number
+  service_details: string
+  service_date: string
+}
+
 export type getClientNameType = getEmployeeNameType
+
+export type currentEmpolyeeType = {
+  id: empType['employee_id']
+  name: empType['full_name']
+  role: empType['role']
+}
+
+export type serviceModeType = 'add' | 'edit' | 'view'

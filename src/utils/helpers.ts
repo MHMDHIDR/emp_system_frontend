@@ -157,10 +157,16 @@ export const getClientName = async (customerId: number) => {
  * Method to get all of the clients in the system
  * @returns - list of clients
  * */
-export const fetchCustomers = async () => {
+export const fetchCustomers = async (page?: number) => {
   try {
-    const response = await axios.get(`${API_URL}/customers`)
-    const { rows: customers }: { rows: customerType[] } = await response?.data
+    const response = await axios.get(`${API_URL}/customers/${page ?? 1}`)
+    const {
+      rows: customers,
+      totalCountRows: totalCustomers
+    }: {
+      rows: customerType[]
+      totalCountRows: number
+    } = await response?.data
 
     const customersWithEmployeeName = await Promise.all(
       customers.map(async client => {
@@ -174,13 +180,9 @@ export const fetchCustomers = async () => {
       })
     )
 
-    return { customersWithEmployeeName }
+    return { customersWithEmployeeName, totalCustomers }
   } catch (error: any) {
     console.error('Error fetching customers:', error.message)
-    // return {
-    //   message: error?.response.data.message ?? 'عفواً! فشل جلب بيانات العملاء!',
-    //   type: 'error'
-    // }
   }
 }
 
@@ -188,12 +190,22 @@ export const fetchCustomers = async () => {
  * Method to get all of the services in the system
  * @returns - list of services
  * */
-export const fetchServices = async ({ customerId }: { customerId?: number }) => {
+export const fetchServices = async (
+  page: number,
+  {
+    customerId
+  }: {
+    customerId?: number
+  }
+) => {
   try {
     const response = customerId
-      ? await axios.get(`${API_URL}/services/byId/0?customerId=${customerId}`)
-      : await axios.get(`${API_URL}/services`)
-    const { rows: services }: { rows: serviceType[] } = await response.data
+      ? await axios.get(`${API_URL}/services/byId/${page}?customerId=${customerId}`)
+      : await axios.get(`${API_URL}/services/${page}`)
+    const {
+      rows: services,
+      totalServices
+    }: { rows: serviceType[]; totalServices: number } = await response.data
 
     const servicesForCurrentEmployee = await Promise.all(
       services.map(async service => {
@@ -212,7 +224,7 @@ export const fetchServices = async ({ customerId }: { customerId?: number }) => 
       })
     )
 
-    return { servicesForCurrentEmployee }
+    return { servicesForCurrentEmployee, totalServices }
   } catch (error: any) {
     console.error('Error fetching services:', error.message)
     return {
@@ -228,18 +240,17 @@ export const fetchServices = async ({ customerId }: { customerId?: number }) => 
  * */
 export const getServiceData = async (
   id: number
-): Promise<
-  { service: serviceType; receipt: receiptsType | receiptsType[] | undefined } | undefined
-> => {
+): Promise<{ service: serviceType; receipt: receiptsType | receiptsType[] }> => {
   try {
     const receipt = (await fetchReceipts({ serviceId: id })) as receiptsType
     const response = await axios.get(`${API_URL}/services/byId/${id}`)
-    const { rows: service } = response.data
+    const { rows: service }: { rows: serviceType } = response.data
 
     return { service, receipt }
   } catch (error: any) {
     console.error('Error fetching service by id:', error.message)
   }
+  return { service: {} as serviceType, receipt: {} as receiptsType }
 }
 
 /**
@@ -271,22 +282,16 @@ export const fetchReceipts = async ({
 }
 
 /**
- * Method to construct the receipt reference number based on the service id and the receipt id, and the current date
- * @param serviceId - the id of the service
+ * Method to construct the receipt reference number based on the employee id and the receipt id, and the current date
+ * @param employee_id - the id of the employee
  * @param receiptId - the id of the receipt
  * @returns - the reference number
  * */
-export const constructReferenceNumber = (
-  serviceId: number | number[],
-  receiptId: number | number[]
-): string => {
-  const currentDate = new Date().toISOString().split('T')[0] // Format: "yyyy-MM-dd"
+export const constructReferenceNumber = (employee_id: number[], receiptId: number[]) => {
+  const clientIds = Array.from(new Set(employee_id)).join('-')
+  const receiptIds = Array.from(new Set(receiptId)).join('-')
 
-  if (Array.isArray(serviceId) && Array.isArray(receiptId)) {
-    return `INV-${serviceId.join('-')}-${receiptId.join('-')}-${currentDate}`
-  }
-
-  return `INV-${serviceId}-${receiptId}-${currentDate}`
+  return `INV-${clientIds}-${receiptIds}`
 }
 
 /**
@@ -302,4 +307,23 @@ export const formattedPrice = (price: number, maximumFractionDigits: number = 0)
   })
 
   return formatter.format(price)
+}
+
+/**
+ * A function to Only allow numbers for the input and allow the backspace and delete keys
+ * @param e - the event object
+ */
+export const onlyNumbers = (e: { key: string; preventDefault: () => void }) => {
+  //allow the backspace and delete keys for the input
+  const allowedKeys = [
+    'Backspace',
+    'Delete',
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowUp',
+    'ArrowDown'
+  ]
+  if (allowedKeys.includes(e.key)) return
+  //only allow numbers for the input
+  if (isNaN(Number(e.key))) e.preventDefault()
 }

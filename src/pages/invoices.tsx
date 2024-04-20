@@ -1,79 +1,165 @@
-import React, { useState, useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { arabicDate, fetchReceipts, getAllOfficeDetails } from '../utils/helpers'
-import { officeDetailsType, receiptsType } from '../types'
-import { AddIcon } from '../components/Icons'
-import PrintSelectedReceipts from './PrintSelectedReceipts'
+import React, { useState, useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
+import { fetchReceipts, getAllOfficeDetails } from "../utils/helpers";
+import { officeDetailsType, receiptsType, currentEmpolyeeType } from "../types";
+import { AddIcon } from "../components/Icons";
+import PrintSelectedReceipts from "./PrintSelectedReceipts";
 
-export default function Invoices() {
-  const { customerId } = useParams()
-  const [receipts, setReceipts] = useState<receiptsType[]>([])
-  const [selectedReceipts, setSelectedReceipts] = useState<receiptsType[]>([])
-  const [allOfficeDetails, setAllOfficeDetails] = useState<officeDetailsType[]>([])
-  const [selectAll, setSelectAll] = useState(false)
+const westernToArabic = (number: number): string => {
+  const arabicNumbers: string[] = [
+    "٠",
+    "١",
+    "٢",
+    "٣",
+    "٤",
+    "٥",
+    "٦",
+    "٧",
+    "٨",
+    "٩",
+  ];
+  return number
+    .toString()
+    .replace(/\d/g, (digit) => arabicNumbers[parseInt(digit)]);
+};
 
-  const currentEmpolyee = {
-    name: JSON.parse(localStorage.getItem('employee_data') as string).full_name ?? null,
-    id: Number(JSON.parse(localStorage.getItem('employee_data') as string).id) ?? null,
-    role: JSON.parse(localStorage.getItem('employee_data') as string).role ?? 'employee'
-  }
+export default function Invoices(): JSX.Element {
+  const { customerId } = useParams<{ customerId: string }>();
+  const [receipts, setReceipts] = useState<receiptsType[]>([]);
+  const [selectedReceipts, setSelectedReceipts] = useState<receiptsType[]>([]);
+  const [allOfficeDetails, setAllOfficeDetails] = useState<officeDetailsType[]>(
+    []
+  );
+  const [selectAll, setSelectAll] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [totalRevenue, setTotalRevenue] = useState<number>(0);
 
-  const getAllReceipts = async () => {
-    const receipts = (await fetchReceipts({
-      customerId: Number(customerId)
-    })) as receiptsType[]
+  const currentEmpolyee: currentEmpolyeeType = {
+    name:
+      JSON.parse(localStorage.getItem("employee_data") || "").full_name ?? null,
+    id:
+      Number(JSON.parse(localStorage.getItem("employee_data") || "").id) ??
+      null,
+    role:
+      JSON.parse(localStorage.getItem("employee_data") || "").role ??
+      "employee",
+  };
 
-    setReceipts(receipts)
-    setSelectedReceipts([])
-  }
+  const getAllReceipts = async (): Promise<void> => {
+    const receipts: receiptsType[] | any = await fetchReceipts({
+      customerId: Number(customerId),
+    });
+    setReceipts(receipts);
+    setSelectedReceipts([]);
+  };
 
   useEffect(() => {
-    const getOfficeDetails = async () => {
-      const officeDetails = await getAllOfficeDetails()
+    const getOfficeDetails = async (): Promise<void> => {
+      const officeDetails: officeDetailsType[] = await getAllOfficeDetails();
+      setAllOfficeDetails(officeDetails);
+    };
+    const allReceipts = async (): Promise<void> => await getAllReceipts();
+    getOfficeDetails();
+    allReceipts();
+  }, []);
 
-      setAllOfficeDetails(officeDetails)
-    }
-    const allReceipts = async () => await getAllReceipts()
-    getOfficeDetails()
-    allReceipts()
-  }, [])
+  const calculateTotalRevenue = () => {
+    // Filter receipts based on search term, employee id, and role
+    const filteredReceipts = filterReceipts(
+      receipts.filter(
+        (receipt) =>
+          receipt.employee_id === currentEmpolyee.id ||
+          currentEmpolyee.role === "admin"
+      )
+    );
 
-  const handleSelectAll = (event: { target: { checked: any } }) => {
-    const isChecked = event.target.checked
-    setSelectAll(isChecked)
+    // Calculate total revenue using reduce
+    const total = filteredReceipts.reduce((acc, receipt) => {
+      // Convert service_paid_amount to float and add to accumulator
+      return acc + parseFloat(String(receipt.service_paid_amount));
+    }, 0);
 
-    const updatedReceipts = receipts.map(receipt => {
-      if (isChecked) {
-        if (
-          currentEmpolyee.role === 'admin' ||
-          receipt.employee_id === currentEmpolyee.id
-        ) {
-          return { ...receipt, selected: true }
-        } else {
-          return { ...receipt, selected: false }
-        }
-      } else {
-        return { ...receipt, selected: false }
+    setTotalRevenue(total);
+  };
+
+  useEffect(() => {
+    // Calculate total revenue whenever receipts, allOfficeDetails, searchTerm, or current employee id change
+    calculateTotalRevenue();
+  }, [
+    receipts,
+    allOfficeDetails,
+    searchTerm,
+    currentEmpolyee.id,
+    currentEmpolyee.role,
+  ]);
+
+  const handleSelectAll = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ): void => {
+    const isChecked: boolean = event.target.checked;
+    setSelectAll(isChecked);
+
+    const updatedReceipts: receiptsType[] = receipts.map((receipt) => {
+      if (
+        (currentEmpolyee.role === "admin" ||
+          receipt.employee_id === currentEmpolyee.id) &&
+        (searchTerm === "" ||
+          arabicDate(receipt.created_at).includes(searchTerm) ||
+          receipt.client_name.includes(searchTerm))
+      ) {
+        return { ...receipt, selected: isChecked };
       }
-    })
-    setReceipts(updatedReceipts)
-    setSelectedReceipts(
-      isChecked ? updatedReceipts.filter(receipt => receipt.selected) : []
-    )
-  }
+      return receipt;
+    });
 
-  const handleCheckboxChange = (receiptId: number) => {
-    const updatedReceipts = receipts.map(receipt => {
+    setReceipts(updatedReceipts);
+
+    setSelectedReceipts(updatedReceipts.filter((receipt) => receipt.selected));
+  };
+
+  const handleCheckboxChange = (receiptId: number): void => {
+    const updatedReceipts: receiptsType[] = receipts.map((receipt) => {
       if (receipt.receipt_id === receiptId) {
-        return { ...receipt, selected: !receipt.selected }
+        return { ...receipt, selected: !receipt.selected };
       }
-      return receipt
-    })
-    setReceipts(updatedReceipts)
+      return receipt;
+    });
+    setReceipts(updatedReceipts);
 
-    const selected = updatedReceipts.filter(receipt => receipt.selected)
-    setSelectedReceipts(selected)
-  }
+    const selected: receiptsType[] = updatedReceipts.filter(
+      (receipt) => receipt.selected
+    );
+    setSelectedReceipts(selected);
+  };
+
+  const filterReceipts = (receipts: receiptsType[]): receiptsType[] => {
+    return receipts.filter((receipt) => {
+      const matchDate: boolean = arabicDate(receipt.created_at).includes(
+        searchTerm
+      );
+      const matchCustomer: boolean = receipt.client_name.includes(searchTerm);
+      return matchDate || matchCustomer;
+    });
+  };
+
+  const arabicDate = (dateString: string): string => {
+    const date: Date = new Date(dateString);
+    const year: string = westernToArabic(date.getFullYear());
+    const month: string = westernToArabic(date.getMonth() + 1);
+    const day: string = westernToArabic(date.getDate());
+    return `${year}/${month}/${day}`;
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const input = e.target.value.toString(); // Convert input to string
+    // Check if the input is not empty and not a number
+    if (input !== "" && isNaN(Number(input))) {
+      setSearchTerm(input);
+    } else {
+      // If input is numeric, convert it to Arabic
+      setSearchTerm(input !== "" ? westernToArabic(Number(input)) : ""); // Keep previous value if input is empty
+    }
+  };
 
   return (
     <section>
@@ -84,19 +170,27 @@ export default function Invoices() {
         />
       </div>
 
-      <div dir='rtl' className='invoices-container'>
+      <div dir="rtl" className="invoices-container">
         <h2>بيانات الفواتير</h2>
-        <table dir='rtl'>
+        <div>
+          <input
+            type="text"
+            placeholder="ابحث حسب تاريخ الفاتورة أو اسم العميل"
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+        </div>
+        <table dir="rtl">
           <thead>
             <tr>
-              <th style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <th style={{ display: "flex", alignItems: "center", gap: "5px" }}>
                 <input
-                  id='selectAll'
-                  type='checkbox'
+                  id="selectAll"
+                  type="checkbox"
                   checked={selectAll}
                   onChange={handleSelectAll}
                 />
-                <label htmlFor='selectAll' style={{ cursor: 'pointer' }}>
+                <label htmlFor="selectAll" style={{ cursor: "pointer" }}>
                   تحديد الكل
                 </label>
               </th>
@@ -115,13 +209,13 @@ export default function Invoices() {
                   لا يوجد فواتير
                   <br />
                   <Link
-                    to='/services'
-                    className='back-btn'
+                    to="/services"
+                    className="back-btn"
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '5px'
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "5px",
                     }}
                   >
                     <AddIcon />
@@ -130,23 +224,25 @@ export default function Invoices() {
                 </td>
               </tr>
             ) : (
-              receipts.map(receipt => {
+              filterReceipts(receipts).map((receipt: receiptsType) => {
                 if (
-                  currentEmpolyee.role === 'admin' || // Check if current employee is admin
-                  receipt.employee_id === currentEmpolyee.id // Or if the receipt belongs to the current employee
+                  currentEmpolyee.role === "admin" ||
+                  receipt.employee_id === currentEmpolyee.id
                 ) {
                   return (
                     <tr key={receipt.receipt_id}>
                       <td>
                         <input
-                          type='checkbox'
+                          type="checkbox"
                           checked={receipt.selected || false}
-                          onChange={() => handleCheckboxChange(receipt.receipt_id)}
+                          onChange={() =>
+                            handleCheckboxChange(receipt.receipt_id)
+                          }
                           style={{
-                            cursor: 'pointer',
-                            height: '20px',
-                            width: '100%',
-                            marginInline: 'auto'
+                            cursor: "pointer",
+                            height: "20px",
+                            width: "100%",
+                            marginInline: "auto",
                           }}
                         />
                       </td>
@@ -157,19 +253,27 @@ export default function Invoices() {
                       <td>{receipt.service_paid_amount}</td>
                       <td>{receipt.full_name}</td>
                     </tr>
-                  )
+                  );
                 } else {
-                  // If the receipt doesn't match the conditions, return null
-                  return null
+                  return null;
                 }
               })
             )}
           </tbody>
+          <tfoot>
+            <tr>
+              <td colSpan={5} style={{ textAlign: "end" }}>
+                الإجمالي
+              </td>
+              <td>{totalRevenue}</td>
+              <td>&nbsp;</td>
+            </tr>
+          </tfoot>
         </table>
-        <Link to='/dashboard' className='back-btn'>
+        <Link to="/dashboard" className="back-btn">
           العودة
         </Link>
       </div>
     </section>
-  )
+  );
 }

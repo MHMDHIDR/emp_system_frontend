@@ -1,23 +1,50 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { arabicDate, fetchAllEmployees, getArabicRole } from '../utils/helpers'
 import { empType } from '../types'
+import HomeButton from '../components/HomeButton'
 
 export default function AddEmp() {
   const [allEmployees, setAllEmployees] = useState<empType[]>([])
+  const [employeeName, setEmployeeName] = useState<string>('')
+  const [monthName, setMonthName] = useState<string>('')
 
   useEffect(() => {
     const getRepresentatives = async () => {
       const employees = await fetchAllEmployees()
-
       setAllEmployees(employees as empType[])
     }
     getRepresentatives()
   }, [])
 
+  const filteredEmployees = allEmployees.filter(emp => {
+    const nameMatch = emp.full_name.toLowerCase().includes(employeeName.toLowerCase())
+    const monthMatch = arabicDate(emp.login_time, true)
+      .toLowerCase()
+      .includes(monthName.toLowerCase())
+    return nameMatch && monthMatch
+  })
+
   return (
     <div dir='rtl' className='employees-container'>
       <h2>جدول الحضور والإنصراف</h2>
+
+      <div>
+        <input
+          type='text'
+          placeholder='ابحث عن اسم الموظف'
+          value={employeeName}
+          onChange={e => setEmployeeName(e.target.value)}
+        />
+        <input
+          type='text'
+          placeholder='ابحث عن اسم الشهر'
+          value={monthName}
+          onChange={e => setMonthName(e.target.value)}
+        />
+      </div>
+
+      <HomeButton />
 
       <table>
         <thead>
@@ -31,7 +58,7 @@ export default function AddEmp() {
           </tr>
         </thead>
         <tbody>
-          {allEmployees.map((emp, index: number) => (
+          {filteredEmployees.map((emp, index: number) => (
             <tr key={index}>
               <td>{emp.employee_id}</td>
               <td>{emp.username}</td>

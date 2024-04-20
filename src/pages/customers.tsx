@@ -1,9 +1,11 @@
-import React, { Suspense, useState, useEffect } from 'react'
+import { Suspense, useState, useEffect, SetStateAction } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { API_URL } from '../utils/constants'
+import { API_URL, ITEMS_PER_PAGE } from '../utils/constants'
 import axios from 'axios'
 import type { customerType, getEmployeeNameType, customerCredentialsType } from '../types'
 import { arabicDate, fetchCustomers } from '../utils/helpers'
+import HomeButton from '../components/HomeButton'
+import { Pagination } from '../components/Pagination'
 
 export default function Customers() {
   const currentEmpolyee = {
@@ -27,6 +29,22 @@ export default function Customers() {
   const [employeeNameResult, setEmployeeNameResult] =
     useState<getEmployeeNameType | null>({ name: '', isLoading: true })
   const [allClients, setAllClients] = useState<customerType[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filteredClients, setFilteredClients] = useState<customerType[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1) // Add state for total pages
+
+  const handleSearchChange = (event: { target: { value: SetStateAction<string> } }) => {
+    setSearchQuery(event.target.value)
+  }
+
+  useEffect(() => {
+    // Filter clients based on search query
+    const filtered = allClients.filter(client =>
+      client.client_name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    setFilteredClients(filtered)
+  }, [searchQuery, allClients])
 
   const navigate = useNavigate()
 
@@ -84,8 +102,9 @@ export default function Customers() {
     }
   }
 
-  const getCustomers = async () => {
-    const { customersWithEmployeeName } = await fetchCustomers()
+  const getCustomers = async (page: number) => {
+    const response = await fetchCustomers(page)
+    const customersWithEmployeeName = response?.customersWithEmployeeName
 
     setAllClients(
       customersWithEmployeeName?.filter((customer: customerType) =>
@@ -94,12 +113,14 @@ export default function Customers() {
           : customer.employee_id === currentEmpolyee.id
       ) || []
     )
+    setTotalPages(Math.ceil((response?.totalCustomers as number) / ITEMS_PER_PAGE))
   }
 
+  // Call the getCustomers function with the updated currentPage in the useEffect hook
   useEffect(() => {
-    const allCustomers = async () => await getCustomers()
+    const allCustomers = async () => await getCustomers(currentPage)
     allCustomers()
-  }, [customerAdded])
+  }, [customerAdded, currentPage])
 
   useEffect(() => {
     const empName = async () => {
@@ -114,7 +135,7 @@ export default function Customers() {
       const { customer_deleted, message } = await response.data
       if (customer_deleted) {
         setAlertMessage({ message: message, type: 'success' })
-        await getCustomers()
+        await getCustomers(currentPage)
       } else {
         setAlertMessage({ message: message, type: 'error' })
       }
@@ -129,6 +150,11 @@ export default function Customers() {
 
   const emp_type =
     JSON.parse(localStorage.getItem('employee_data') || '').role ?? 'employee'
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page) // Update currentPage state
+    getCustomers(page) // Fetch clients for the selected page
+  }
 
   return (
     <section>
@@ -192,7 +218,6 @@ export default function Customers() {
             onChange={e => setHowKnow(e.target.value)}
             required
           />
-
           <div>
             <div>
               <input
@@ -228,16 +253,30 @@ export default function Customers() {
               </button>
             </div>
           </div>
-
           <input type='submit' value='إضافة عميل جديد' />
+          <HomeButton />
         </form>
 
         {alertMessage.message && (
           <div className={`alert ${alertMessage.type}`}>{alertMessage.message}</div>
         )}
 
+        <input
+          dir='rtl'
+          type='text'
+          placeholder='ابحث باسم العميل...'
+          value={searchQuery}
+          onChange={handleSearchChange}
+        />
+
         {allClients && allClients.length > 0 && (
           <div className='table-container'>
+            <Pagination
+              totalPages={totalPages}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+            />
+
             <table dir='rtl'>
               <thead>
                 <tr>
@@ -257,7 +296,7 @@ export default function Customers() {
                 </tr>
               </thead>
               <tbody>
-                {allClients.map((client, index: number) => (
+                {filteredClients.map((client, index: number) => (
                   <tr key={index}>
                     <td>{client.id}</td>
                     <td>{arabicDate(client.created_at)}</td>
@@ -300,7 +339,7 @@ export default function Customers() {
                     </td>
                     <td>{client.office_discovery_method}</td>
                     <td>
-                      <Link to={`/services/${client.id}`} className='back-btn'>
+                      <Link to={`/services/${client.id}?mode=view`} className='back-btn'>
                         الخدمات
                       </Link>
                     </td>
@@ -335,20 +374,18 @@ export default function Customers() {
                 ))}
               </tbody>
             </table>
+
+            <Pagination
+              totalPages={totalPages}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+            />
           </div>
         )}
 
         <Link to='/dashboard' className='back-btn'>
           العودة
         </Link>
-
-        <div id='myModal' className='modal'>
-          <div className='modal-content'>
-            <span className='close'>&times;</span>
-            <h3>فاتورة مثال</h3>
-            <button id='downloadBtn'>تحميل كـ PDF</button>
-          </div>
-        </div>
       </div>
     </section>
   )

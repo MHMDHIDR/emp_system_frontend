@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { Link, useNavigate } from 'react-router-dom'
 import { API_URL } from '../utils/constants'
 import { arabicDate, fetchAllEmployees, getArabicRole } from '../utils/helpers'
 import { empType } from '../types'
+import HomeButton from '../components/HomeButton'
 
 export default function AddEmployee() {
   const [username, setUsername] = useState('')
@@ -108,7 +109,7 @@ export default function AddEmployee() {
   }
 
   return (
-    <div dir='rtl' className='employees-container'>
+    <div dir='rtl' className='page-container'>
       <h2>إضافة موظف جديد</h2>
 
       <form dir='rtl' onSubmit={addUser}>
@@ -289,6 +290,7 @@ export default function AddEmployee() {
           style={{ cursor: userAdded ? 'progress' : 'pointer' }}
           disabled={userAdded}
         />
+        <HomeButton />
 
         {alertMessage.message && (
           <div className={`alert ${alertMessage.type}`}>{alertMessage.message}</div>
@@ -334,7 +336,6 @@ export default function AddEmployee() {
                       <Link to={`/edit_emp/${emp.employee_id}`} className='back-btn'>
                         تعديل الموظف
                       </Link>
-                      {/* حذف الموظف */}
                       <button
                         onClick={() => deleteEmployee(emp.employee_id)}
                         className='logout-btn'

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { fetchAllEmployees, getEmployeeName } from '../utils/helpers'
 import {
@@ -10,6 +10,7 @@ import {
 import axios from 'axios'
 import { API_URL } from '../utils/constants'
 import { LoadingPage } from '../components/Loading'
+import HomeButton from '../components/HomeButton'
 
 export default function CustomersEdit() {
   const [customersData, setCustomersData] = useState<customerType>()
@@ -77,8 +78,6 @@ export default function CustomersEdit() {
       console.error('Error fetching employee by id:', error.message)
     }
   }
-
-  console.log(employee_id)
 
   async function editCustomer(e: { preventDefault: () => void }) {
     e.preventDefault() // no refresh
@@ -149,6 +148,8 @@ export default function CustomersEdit() {
       <div className='page-container'>
         <h2>تعديل بيانات العميل</h2>
 
+        <HomeButton />
+
         {!customersData ? (
           <LoadingPage />
         ) : (
@@ -204,9 +205,6 @@ export default function CustomersEdit() {
               required
             />
 
-            {/* <label htmlFor='responsible'>الموظف المسئول:</label>
-            <span className='data-box'>{employeeName}</span> */}
-
             <label htmlFor='employee_id'>
               اختر الموظف المسؤول:
               <small style={{ fontSize: 10 }}>(اختياري)</small>
@@ -237,7 +235,6 @@ export default function CustomersEdit() {
 
             <label htmlFor='credintials'>بيانات الدخول للانظمة:</label>
             <div>
-              <strong>بيانات الدخول للانظمة:</strong>{' '}
               {credentials?.map((credential: customerCredentialsType, index: number) => (
                 <div key={credential.id ?? '' + index}>
                   <strong>اسم الموقع:</strong>
@@ -296,6 +293,7 @@ export default function CustomersEdit() {
                 </button>
               </div>
             </div>
+
             <label htmlFor='how_know'>كيفية التعرف علي المكتب:</label>
             <input
               type='text'
@@ -323,14 +321,6 @@ export default function CustomersEdit() {
         <Link to={`/customers/${customersData?.id}`} className='back-btn'>
           العودة
         </Link>
-
-        <div id='myModal' className='modal'>
-          <div className='modal-content'>
-            <span className='close'>&times;</span>
-            <h3>فاتورة مثال</h3>
-            <button id='downloadBtn'>تحميل كـ PDF</button>
-          </div>
-        </div>
       </div>
     </section>
   )
