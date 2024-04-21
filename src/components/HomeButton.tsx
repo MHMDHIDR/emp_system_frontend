@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 export default function HomeButton() {
   return (
-    <Link to={'/'} className='back-btn fixed'>
+    <Link to={'/dashboard'} className='back-btn fixed'>
       <svg
         xmlns='http://www.w3.org/2000/svg'
         width='24'
