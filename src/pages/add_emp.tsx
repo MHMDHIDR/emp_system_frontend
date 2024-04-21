@@ -110,9 +110,9 @@ export default function AddEmployee() {
         setAlertMessage({ message: message, type: 'error' }) // Set error message
       }
     } catch (error: any) {
-      console.error('Error logging in:', error.message)
+      console.error('Error logging in:', error.response.data.message)
       setAlertMessage({
-        message: 'عفواً! فشل حذف الموظف حاول مرة أخرى!',
+        message: error.response.data.message ?? 'عفواً! فشل حذف الموظف حاول مرة أخرى!',
         type: 'error'
       })
     }
