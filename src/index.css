@@ -140,6 +140,7 @@ input[type='submit']:hover {
   top: 20px;
   left: 20px;
   border: 2px solid #454545;
+  z-index: 1000;
 }
 
 .back-btn:hover {

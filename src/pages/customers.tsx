@@ -32,7 +32,7 @@ export default function Customers() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filteredClients, setFilteredClients] = useState<customerType[]>([])
   const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1) // Add state for total pages
+  const [totalPages, setTotalPages] = useState(1)
 
   const handleSearchChange = (event: { target: { value: SetStateAction<string> } }) => {
     setSearchQuery(event.target.value)
@@ -43,6 +43,7 @@ export default function Customers() {
     const filtered = allClients.filter(client =>
       client.client_name.toLowerCase().includes(searchQuery.toLowerCase())
     )
+
     setFilteredClients(filtered)
   }, [searchQuery, allClients])
 
@@ -103,17 +104,13 @@ export default function Customers() {
   }
 
   const getCustomers = async (page: number) => {
-    const response = await fetchCustomers(page)
+    const response = await fetchCustomers(currentEmpolyee.id, page)
     const customersWithEmployeeName = response?.customersWithEmployeeName
 
-    setAllClients(
-      customersWithEmployeeName?.filter((customer: customerType) =>
-        currentEmpolyee.role === 'admin'
-          ? customer
-          : customer.employee_id === currentEmpolyee.id
-      ) || []
-    )
-    setTotalPages(Math.ceil((response?.totalCustomers as number) / ITEMS_PER_PAGE))
+    if (customersWithEmployeeName) {
+      setAllClients(customersWithEmployeeName)
+      setTotalPages(Math.ceil((response?.totalCustomers as number) / ITEMS_PER_PAGE))
+    }
   }
 
   // Call the getCustomers function with the updated currentPage in the useEffect hook
@@ -277,103 +274,112 @@ export default function Customers() {
               onPageChange={handlePageChange}
             />
 
-            <table dir='rtl'>
-              <thead>
-                <tr>
-                  <th>التسلسل</th>
-                  <th>التاريخ الادخال</th>
-                  <th>اسم العميل</th>
-                  <th>الجنسية</th>
-                  <th>رقم التليفون</th>
-                  <th>البريد الالكتروني</th>
-                  <th>الوظيفة</th>
-                  <th>اسم المستخدم وكلمات المرور</th>
-                  <th>الموظف المسئول</th>
-                  <th>كيفية التعرف علي المكتب</th>
-                  <th>الخدمات</th>
-                  <th>الفواتير</th>
-                  <th>عمليات</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredClients.map((client, index: number) => (
-                  <tr key={index}>
-                    <td>{client.id}</td>
-                    <td>{arabicDate(client.created_at)}</td>
-                    <td>{client.client_name}</td>
-                    <td>{client.nationality}</td>
-                    <td>{client.phone_number}</td>
-                    <td>{client.email}</td>
-                    <td>{client.job_title}</td>
-                    <td>
-                      {client.customer_credentials &&
-                      JSON.parse(String(client.customer_credentials)).length > 0 ? (
-                        <div style={{ whiteSpace: 'nowrap' }}>
-                          {JSON.parse(String(client.customer_credentials)).map(
-                            (credentials: customerCredentialsType, index: number) => (
-                              <div
-                                key={index}
-                                style={{
-                                  display: 'inline-block',
-                                  marginRight: '10px'
-                                }}
-                              >
-                                <p>إســـــــم الموقع: {credentials.websiteName}</p>
-                                <p>إســم المستخدم: {credentials.username}</p>
-                                <p>كلـــمة المــــرور: {credentials.password}</p>
-                              </div>
-                            )
+            <div className='table-container'>
+              <div className='table-scroll-wrapper'>
+                <table dir='rtl'>
+                  <thead>
+                    <tr>
+                      <th>التسلسل</th>
+                      <th>التاريخ الادخال</th>
+                      <th>اسم العميل</th>
+                      <th>الجنسية</th>
+                      <th>رقم التليفون</th>
+                      <th>البريد الالكتروني</th>
+                      <th>الوظيفة</th>
+                      <th>اسم المستخدم وكلمات المرور</th>
+                      <th>الموظف المسئول</th>
+                      <th>كيفية التعرف علي المكتب</th>
+                      <th>الخدمات</th>
+                      <th>الفواتير</th>
+                      <th>عمليات</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredClients.map((client, index: number) => (
+                      <tr key={index}>
+                        <td>{client.id}</td>
+                        <td>{arabicDate(client.created_at)}</td>
+                        <td>{client.client_name}</td>
+                        <td>{client.nationality}</td>
+                        <td>{client.phone_number}</td>
+                        <td>{client.email}</td>
+                        <td>{client.job_title}</td>
+                        <td>
+                          {client.customer_credentials &&
+                          JSON.parse(String(client.customer_credentials)).length > 0 ? (
+                            <div style={{ whiteSpace: 'nowrap' }}>
+                              {JSON.parse(String(client.customer_credentials)).map(
+                                (credentials: customerCredentialsType, index: number) => (
+                                  <div
+                                    key={index}
+                                    style={{
+                                      display: 'inline-block',
+                                      marginRight: '10px'
+                                    }}
+                                  >
+                                    <p>إســـــــم الموقع: {credentials.websiteName}</p>
+                                    <p>إســم المستخدم: {credentials.username}</p>
+                                    <p>كلـــمة المــــرور: {credentials.password}</p>
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          ) : (
+                            'لا يوجد بيانات'
                           )}
-                        </div>
-                      ) : (
-                        'لا يوجد بيانات'
-                      )}
-                    </td>
+                        </td>
 
-                    <td>
-                      <Suspense
-                        fallback={(employeeNameResult?.isLoading ?? true) && 'Loading...'}
-                      >
-                        <span>{client.employeeName && client.employeeName.name}</span>
-                      </Suspense>
-                    </td>
-                    <td>{client.office_discovery_method}</td>
-                    <td>
-                      <Link to={`/services/${client.id}?mode=view`} className='back-btn'>
-                        الخدمات
-                      </Link>
-                    </td>
-                    <td>
-                      <Link to={`/invoices/${client.id}`} className='back-btn'>
-                        الفواتير
-                      </Link>
-                    </td>
-                    <td>
-                      <Link
-                        style={{ margin: 10 }}
-                        to={`/customers/${client.id}`}
-                        className='back-btn'
-                      >
-                        عرض بيانات العميل
-                      </Link>
-                      {emp_type === 'admin' && (
-                        <button
-                          style={{ margin: 10 }}
-                          onClick={() => {
-                            confirm(
-                              'هل أنت متأكد من حذف العميل؟ لا يمكن التراجع عن هذا القرار.'
-                            ) && deleteCustomer(client.id)
-                          }}
-                          className='logout-btn'
-                        >
-                          حذف العميل
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                        <td>
+                          <Suspense
+                            fallback={
+                              (employeeNameResult?.isLoading ?? true) && 'Loading...'
+                            }
+                          >
+                            <span>{client.employeeName && client.employeeName.name}</span>
+                          </Suspense>
+                        </td>
+                        <td>{client.office_discovery_method}</td>
+                        <td>
+                          <Link
+                            to={`/services/${client.id}?mode=view`}
+                            className='back-btn'
+                          >
+                            الخدمات
+                          </Link>
+                        </td>
+                        <td>
+                          <Link to={`/invoices/${client.id}`} className='back-btn'>
+                            الفواتير
+                          </Link>
+                        </td>
+                        <td>
+                          <Link
+                            style={{ margin: 10 }}
+                            to={`/customers/${client.id}`}
+                            className='back-btn'
+                          >
+                            عرض بيانات العميل
+                          </Link>
+                          {emp_type === 'admin' && (
+                            <button
+                              style={{ margin: 10 }}
+                              onClick={() => {
+                                confirm(
+                                  'هل أنت متأكد من حذف العميل؟ لا يمكن التراجع عن هذا القرار.'
+                                ) && deleteCustomer(client.id)
+                              }}
+                              className='logout-btn'
+                            >
+                              حذف العميل
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
             <Pagination
               totalPages={totalPages}

@@ -11,7 +11,7 @@ export const Pagination: React.FC<Props> = ({
   totalPages,
   onPageChange
 }) => {
-  return (
+  return !totalPages || totalPages === 1 ? null : (
     <div
       style={{
         display: 'flex',
