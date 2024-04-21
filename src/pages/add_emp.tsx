@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { Link, useNavigate } from 'react-router-dom'
-import { API_URL } from '../utils/constants'
+import { API_URL, ITEMS_PER_PAGE } from '../utils/constants'
 import { arabicDate, fetchAllEmployees, getArabicRole } from '../utils/helpers'
 import { empType } from '../types'
 import HomeButton from '../components/HomeButton'
+import { Pagination } from '../components/Pagination'
 
 export default function AddEmployee() {
   const [username, setUsername] = useState('')
@@ -22,8 +23,9 @@ export default function AddEmployee() {
   const [comissionPercentage, setComissionPercentage] = useState('')
   const [userAdded, setUserAdded] = useState(false)
   const [alertMessage, setAlertMessage] = useState({ message: '', type: '' })
-
   const [allEmployees, setAllEmployees] = useState<empType[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
 
   const navigate = useNavigate()
 
@@ -71,7 +73,9 @@ export default function AddEmployee() {
 
   useEffect(() => {
     const getRepresentatives = async () => {
-      const employees = await fetchAllEmployees()
+      const { employees, totalEmployees } = await fetchAllEmployees(currentPage)
+      console.log('employees ->', employees)
+      console.log('totalEmployees ->', totalEmployees)
 
       const uniqueRepresentative =
         typeof employees === 'object' && Array.isArray(employees)
@@ -85,6 +89,7 @@ export default function AddEmployee() {
           : []
 
       setAllEmployees(uniqueRepresentative as empType[])
+      setTotalPages(Math.ceil((totalEmployees as number) / ITEMS_PER_PAGE))
     }
     getRepresentatives()
   }, [])
@@ -95,7 +100,7 @@ export default function AddEmployee() {
       const { emp_deleted, message } = await response.data
       if (emp_deleted) {
         setAlertMessage({ message: message, type: 'success' }) // Set success message
-        fetchAllEmployees()
+        fetchAllEmployees(currentPage) // Fetch clients for the selected page (currentPage)
       } else {
         setAlertMessage({ message: message, type: 'error' }) // Set error message
       }
@@ -106,6 +111,11 @@ export default function AddEmployee() {
         type: 'error'
       })
     }
+  }
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page) // Update currentPage state
+    fetchAllEmployees(page)
   }
 
   return (
@@ -299,6 +309,12 @@ export default function AddEmployee() {
         <div>
           <h3>بيانات الموظفين المضافة</h3>
           <div className='table-container'>
+            <Pagination
+              totalPages={totalPages}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+            />
+
             <table>
               <thead>
                 <tr>
@@ -347,6 +363,12 @@ export default function AddEmployee() {
                 ))}
               </tbody>
             </table>
+
+            <Pagination
+              totalPages={totalPages}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+            />
           </div>
         </div>
       </form>
