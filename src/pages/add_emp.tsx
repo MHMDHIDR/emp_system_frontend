@@ -360,6 +360,7 @@ export default function AddEmployee() {
                       <button
                         onClick={() => deleteEmployee(emp.employee_id)}
                         className='logout-btn'
+                        type='button'
                       >
                         حذف الموظف
                       </button>
