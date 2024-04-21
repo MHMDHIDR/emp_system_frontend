@@ -73,26 +73,31 @@ export default function AddEmployee() {
 
   useEffect(() => {
     const getRepresentatives = async () => {
-      const { employees, totalEmployees } = await fetchAllEmployees(currentPage)
-      console.log('employees ->', employees)
-      console.log('totalEmployees ->', totalEmployees)
+      const response = await fetchAllEmployees(currentPage)
 
-      const uniqueRepresentative =
-        typeof employees === 'object' && Array.isArray(employees)
-          ? (Array.from(new Set(employees.map(employee => employee.full_name)))
-              .map(fullName => {
-                return employees.find(
-                  employee => employee.full_name === fullName && employee.role !== 'admin'
-                )
-              })
-              .filter(employee => employee !== undefined) as empType[])
-          : []
+      if ('error' in response) {
+        console.error('Error fetching employees:', response.error.message)
+      } else {
+        const { employees, totalEmployees } = response
 
-      setAllEmployees(uniqueRepresentative as empType[])
-      setTotalPages(Math.ceil((totalEmployees as number) / ITEMS_PER_PAGE))
+        const uniqueRepresentative =
+          typeof employees === 'object' && Array.isArray(employees)
+            ? (Array.from(new Set(employees.map(employee => employee.full_name)))
+                .map(fullName => {
+                  return employees.find(
+                    employee =>
+                      employee.full_name === fullName && employee.role !== 'admin'
+                  )
+                })
+                .filter(employee => employee !== undefined) as empType[])
+            : []
+
+        setAllEmployees(uniqueRepresentative as empType[])
+        setTotalPages(Math.ceil((totalEmployees as number) / ITEMS_PER_PAGE))
+      }
     }
     getRepresentatives()
-  }, [])
+  }, [currentPage])
 
   async function deleteEmployee(empId: number) {
     try {
@@ -308,13 +313,13 @@ export default function AddEmployee() {
 
         <div>
           <h3>بيانات الموظفين المضافة</h3>
-          <div className='table-container'>
-            <Pagination
-              totalPages={totalPages}
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-            />
+          <Pagination
+            totalPages={totalPages}
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+          />
 
+          <div className='table-container'>
             <table>
               <thead>
                 <tr>
@@ -363,13 +368,13 @@ export default function AddEmployee() {
                 ))}
               </tbody>
             </table>
-
-            <Pagination
-              totalPages={totalPages}
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-            />
           </div>
+
+          <Pagination
+            totalPages={totalPages}
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+          />
         </div>
       </form>
 
