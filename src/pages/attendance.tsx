@@ -11,8 +11,9 @@ export default function AddEmp() {
 
   useEffect(() => {
     const getRepresentatives = async () => {
-      const employees = await fetchAllEmployees()
-      setAllEmployees(employees as unknown as empType[])
+      const response = await fetchAllEmployees()
+      const { employees } = response as { employees: empType[]; totalEmployees: number }
+      setAllEmployees(employees)
     }
     getRepresentatives()
   }, [])
