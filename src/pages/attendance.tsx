@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { arabicDate, fetchAllEmployees, getArabicRole } from '../utils/helpers'
 import { empType } from '../types'
@@ -12,7 +12,7 @@ export default function AddEmp() {
   useEffect(() => {
     const getRepresentatives = async () => {
       const employees = await fetchAllEmployees()
-      setAllEmployees(employees as empType[])
+      setAllEmployees(employees as unknown as empType[])
     }
     getRepresentatives()
   }, [])
