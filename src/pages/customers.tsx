@@ -34,8 +34,19 @@ export default function Customers() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
 
-  const handleSearchChange = (event: { target: { value: SetStateAction<string> } }) => {
-    setSearchQuery(event.target.value)
+  const handleSearchChange = async (event: {
+    target: { value: SetStateAction<string> }
+  }) => {
+    const query = event.target.value
+    setSearchQuery(query)
+
+    try {
+      const response = await axios.get(`${API_URL}/customers/searchCustomer/${query}`)
+      const { data } = response
+      setFilteredClients(data)
+    } catch (error) {
+      console.error('Error searching customers:', error)
+    }
   }
 
   useEffect(() => {
