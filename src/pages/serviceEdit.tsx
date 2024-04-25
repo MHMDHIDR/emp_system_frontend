@@ -65,15 +65,15 @@ const ServiceEdit = () => {
     const fetchData = async () => {
       try {
         const serviceData = await getServiceData(Number(serviceId))
-        const service = serviceData.service
+        const service = serviceData.service as unknown as serviceType[]
         const receipt = serviceData?.receipt as receiptsType[]
 
         const { employeeName }: { employeeName: getEmployeeNameType } =
-          await getEmployeeName(service?.employee_id as number)
+          await getEmployeeName(service[0]?.employee_id as number)
 
         setEmployeeName(employeeName.name)
         setLoadingName(employeeName.isLoading)
-        setSubServices(JSON.parse(String(service.sub_services)))
+        setSubServices(JSON.parse(String(service[0].sub_services)))
 
         const getCustomers = async (page: number) => {
           const response = await fetchCustomers(currentEmpolyee.id, page)
@@ -111,21 +111,21 @@ const ServiceEdit = () => {
         }
         getRepresentatives()
 
-        setServiceData(service)
+        setServiceData(service[0])
         setFormData({
           ...initialFormData,
-          service_payment_status: service?.service_payment_status ?? 'unpaid',
+          service_payment_status: service[0]?.service_payment_status ?? 'unpaid',
           service_paid_amount: String(
             receipt?.reduce(
               (acc, receipt) => Number(acc) + Number(receipt.service_paid_amount) || 0,
               0
             ) ?? 0
           ),
-          ends_at: service?.ends_at ?? '',
-          service_details: service?.service_details ?? ''
+          ends_at: service[0]?.ends_at ?? '',
+          service_details: service[0]?.service_details ?? ''
         })
       } catch (error: any) {
-        console.error('Error fetching data:', error.message)
+        console.error('Error fetching data:', error)
         setAlertMessage({
           message: 'عفواً! حدث خطأ أثناء جلب البيانات، يرجى المحاولة مرة أخرى!',
           type: 'error'
