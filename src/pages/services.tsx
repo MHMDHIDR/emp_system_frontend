@@ -25,7 +25,6 @@ const Services = () => {
   const { customerId } = useParams()
   const { search } = useLocation()
   const mode = new URLSearchParams(search).get('mode') as serviceModeType
-  const customer_Id = new URLSearchParams(search).get('customerId')
 
   const [searchEndDate, setSearchEndDate] = useState('')
 
@@ -39,7 +38,7 @@ const Services = () => {
     // Fetch services based on searchEndDate
     const fetchServicesByEndDate = async () => {
       const { servicesForCurrentEmployee } = await fetchServices(currentPage, {
-        customerId: Number(customer_Id)
+        customerId: Number(customerId)
       })
 
       let filteredServices = servicesForCurrentEmployee || []
@@ -212,7 +211,7 @@ const Services = () => {
   useEffect(() => {
     const getAllServices = async () => {
       const { servicesForCurrentEmployee } = await fetchServices(currentPage, {
-        customerId: Number(customer_Id)
+        customerId: Number(customerId)
       })
 
       let filteredServices = servicesForCurrentEmployee || []
@@ -267,8 +266,8 @@ const Services = () => {
   }, [currentPage])
 
   useEffect(() => {
-    setFormData({ ...formData, client_id: customer_Id || '' })
-  }, [customer_Id])
+    setFormData({ ...formData, client_id: customerId || '' })
+  }, [customerId])
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
@@ -292,7 +291,7 @@ const Services = () => {
                 <>
                   <span className='data-box'>
                     {allClients
-                      .filter(client => client.id === Number(customer_Id))
+                      .filter(client => client.id === Number(customerId))
                       .map((client, index) => (
                         <option key={index} value={client.id}>
                           {client.client_name}
@@ -405,27 +404,24 @@ const Services = () => {
         )}
 
         <div className='table-container'>
-          {customerId && (
-            <Link
-              to={`/services?mode=add&customerId=${customerId}`}
-              className='back-btn'
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '5px',
-                width: 'fit-content',
-                marginLeft: 'auto',
-                marginBottom: '10px'
-              }}
-            >
-              إضافة خدمة جديدة
-              <AddIcon />
-            </Link>
-          )}
-
           {mode === 'view' && (
             <>
+              <Link
+                to={`/services/${customerId}?mode=add`}
+                className='back-btn'
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px',
+                  width: 'fit-content',
+                  marginLeft: 'auto',
+                  marginBottom: '10px'
+                }}
+              >
+                إضافة خدمة جديدة
+                <AddIcon />
+              </Link>
               <form dir='rtl' className='page-container-small'>
                 <label htmlFor='searchEndDate'>البحث بتاريخ انتهاء الخدمة:</label>
                 <input

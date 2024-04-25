@@ -1,11 +1,11 @@
-import { Suspense, useState, useEffect, SetStateAction } from 'react'
+import React, { Suspense, useState, useEffect, SetStateAction } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { API_URL, ITEMS_PER_PAGE } from '../utils/constants'
 import axios from 'axios'
-import type { customerType, getEmployeeNameType, customerCredentialsType } from '../types'
 import { arabicDate, fetchCustomers } from '../utils/helpers'
 import HomeButton from '../components/HomeButton'
 import { Pagination } from '../components/Pagination'
+import type { customerType, getEmployeeNameType, customerCredentialsType } from '../types'
 
 export default function Customers() {
   const currentEmpolyee = {

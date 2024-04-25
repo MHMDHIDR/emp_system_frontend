@@ -210,7 +210,7 @@ export const fetchServices = async (
 ) => {
   try {
     const response = customerId
-      ? await axios.get(`${API_URL}/services/byId/${page}?customerId=${customerId}`)
+      ? await axios.get(`${API_URL}/services/byId/${customerId}`)
       : await axios.get(`${API_URL}/services/${page}`)
     const {
       rows: services,
