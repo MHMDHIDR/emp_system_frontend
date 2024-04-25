@@ -63,7 +63,7 @@ export const LoadingPage = () => (
 
       <br />
 
-      <Link to={'/'} className='back-btn'>
+      <Link to={'/dashboard'} className='back-btn'>
         لوحة التحكم
       </Link>
     </span>

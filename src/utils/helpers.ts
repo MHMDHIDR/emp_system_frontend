@@ -253,7 +253,7 @@ export const getServiceData = async (
 ): Promise<{ service: serviceType; receipt: receiptsType | receiptsType[] }> => {
   try {
     const receipt = (await fetchReceipts({ serviceId: id })) as receiptsType
-    const response = await axios.get(`${API_URL}/services/byId/${id}`)
+    const response = await axios.get(`${API_URL}/services/byId/0?serviceId=${id}`)
     const { rows: service }: { rows: serviceType } = response.data
 
     return { service, receipt }

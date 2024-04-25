@@ -278,7 +278,6 @@ const Services = () => {
     <section>
       <div className='page-container'>
         <h2>قائمة الخدمات</h2>
-
         {/* Form for adding a service */}
         {mode === 'add' && (
           <>
@@ -406,22 +405,24 @@ const Services = () => {
         <div className='table-container'>
           {mode === 'view' && (
             <>
-              <Link
-                to={`/services/${customerId}?mode=add`}
-                className='back-btn'
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '5px',
-                  width: 'fit-content',
-                  marginLeft: 'auto',
-                  marginBottom: '10px'
-                }}
-              >
-                إضافة خدمة جديدة
-                <AddIcon />
-              </Link>
+              {customerId && (
+                <Link
+                  to={`/services/${customerId}?mode=add`}
+                  className='back-btn'
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '5px',
+                    width: 'fit-content',
+                    marginLeft: 'auto',
+                    marginBottom: '10px'
+                  }}
+                >
+                  إضافة خدمة جديدة
+                  <AddIcon />
+                </Link>
+              )}
               <form dir='rtl' className='page-container-small'>
                 <label htmlFor='searchEndDate'>البحث بتاريخ انتهاء الخدمة:</label>
                 <input
@@ -581,7 +582,6 @@ const Services = () => {
             </>
           )}
         </div>
-
         {/* Link to navigate back to customers page */}
         <Link to={customerId ? `/customers` : `/dashboard`} className='back-btn'>
           العودة
