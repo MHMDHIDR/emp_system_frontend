@@ -144,7 +144,8 @@ const Services = () => {
 
   const getAllServices = async (page: number) => {
     const { servicesForCurrentEmployee, totalServices } = await fetchServices(page, {
-      customerId: Number(customerId)
+      customerId: Number(customerId),
+      employeeId: currentEmpolyee.id
     })
 
     setServices(

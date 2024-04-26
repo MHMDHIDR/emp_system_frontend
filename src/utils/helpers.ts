@@ -203,15 +203,21 @@ export const fetchCustomers = async (currentEmpId: number, page?: number) => {
 export const fetchServices = async (
   page: number,
   {
-    customerId
+    customerId,
+    employeeId
   }: {
     customerId?: number
+    employeeId?: number
   }
 ) => {
   try {
     const response = customerId
-      ? await axios.get(`${API_URL}/services/byId/${customerId}`)
-      : await axios.get(`${API_URL}/services/${page}`)
+      ? await axios.get(`${API_URL}/services/byId/${customerId}`, {
+          params: { employeeId }
+        })
+      : await axios.get(`${API_URL}/services/${page}`, {
+          params: { employeeId }
+        })
     const {
       rows: services,
       totalServices
