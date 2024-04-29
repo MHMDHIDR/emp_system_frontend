@@ -49,10 +49,7 @@ export default function AddEmployee() {
         comissionPercentage
       })
 
-      const { id, isAdmin, full_name, emp_added, message } = await response.data
-
-      // البيانات المرجعة من السيرفر
-      console.log('data: ', { id, isAdmin, full_name, emp_added, message })
+      const { emp_added, message } = await response.data
 
       if (emp_added) {
         setUserAdded(true)

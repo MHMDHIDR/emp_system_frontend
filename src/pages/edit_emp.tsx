@@ -66,9 +66,6 @@ export default function AddEmp() {
 
       const { emp_updated, message } = await response.data
 
-      // البيانات المرجعة من السيرفر
-      console.log('data: ', { emp_updated, message })
-
       if (emp_updated) {
         setUserUpdated(true)
         setAlertMessage({ message: message, type: 'success' }) // Set success message

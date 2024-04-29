@@ -20,6 +20,7 @@ import {
 import { LoadingPage } from '../components/Loading'
 import { AddCustomerIcon } from '../components/Icons'
 import { API_URL } from '../utils/constants'
+import HomeButton from '../components/HomeButton'
 
 const ServiceEdit = () => {
   const { id: serviceId } = useParams()
@@ -384,6 +385,10 @@ const ServiceEdit = () => {
                     setPaidAmount(e.target.value)
                   }}
                   onKeyDown={onlyNumbers}
+                  disabled={
+                    serviceData?.service_total_price ===
+                    Number(formData.service_paid_amount)
+                  }
                   required={false}
                 />
                 <span>{`المبلغ المدفوع حتى الآن: ${formData.service_paid_amount} درهم`}</span>
@@ -489,6 +494,8 @@ const ServiceEdit = () => {
             </button>
           </form>
         )}
+
+        <HomeButton />
 
         {alertMessage.message && (
           <div className={`alert ${alertMessage.type}`}>{alertMessage.message}</div>

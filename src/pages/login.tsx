@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { API_URL } from '../utils/constants'
@@ -43,7 +43,6 @@ export default function Login() {
         message: 'عفواً! فشل تسجيل الدخول حاول مرة أخرى!',
         type: 'error'
       })
-      console.log(alertMessage.message)
 
       console.error('Error logging in:', error.message)
     }

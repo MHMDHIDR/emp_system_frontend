@@ -218,6 +218,7 @@ export const fetchServices = async (
       : await axios.get(`${API_URL}/services/${page}`, {
           params: { employeeId }
         })
+
     const {
       rows: services,
       totalServices
