@@ -24,6 +24,36 @@ const englishToArabicNumbers = (englishNumber: string) => {
 const Services = () => {
   const { customerId } = useParams()
   const { search } = useLocation()
+
+  const today = new Date().toISOString().split('T')[0] // Today's current date
+
+  const currentEmpolyee = {
+    name: JSON.parse(localStorage.getItem('employee_data') as string).full_name ?? null,
+    id: Number(JSON.parse(localStorage.getItem('employee_data') as string).id) ?? null,
+    role: JSON.parse(localStorage.getItem('employee_data') as string).role ?? 'employee'
+  }
+
+  const [allClients, setAllClients] = useState<customerType[]>([])
+  const [allServices, setServices] = useState<serviceType[]>([])
+  const [allEmployees, setAllEmployees] = useState<empType[]>([])
+  const [formData, setFormData] = useState({
+    employee_id: currentEmpolyee.id,
+    representative_id: '',
+    client_id: '',
+    service_name: '',
+    service_total_price: '',
+    created_at: today,
+    ends_at: '',
+    service_details: '',
+    service_status: ''
+  })
+  const [searchServiceStatus, setSearchServiceStatus] = useState<string>('')
+  const [searchPaymentStatus, setSearchPaymentStatus] = useState<string>('')
+  const [alertMessage, setAlertMessage] = useState({ message: '', type: '' })
+  const [serviceAdded, setServiceAdded] = useState(false)
+  const [serviceDeleted, setServiceDeleted] = useState(false)
+  const [totalPages, setTotalPages] = useState(1)
+
   const mode = new URLSearchParams(search).get('mode') as serviceModeType
 
   const [searchEndDate, setSearchEndDate] = useState('')
@@ -37,9 +67,12 @@ const Services = () => {
   useEffect(() => {
     // Fetch services based on searchEndDate
     const fetchServicesByEndDate = async () => {
-      const { servicesForCurrentEmployee } = await fetchServices(currentPage, {
-        customerId: Number(customerId)
-      })
+      const { servicesForCurrentEmployee, totalServices } = await fetchServices(
+        currentPage,
+        {
+          customerId: Number(customerId)
+        }
+      )
 
       let filteredServices = servicesForCurrentEmployee || []
 
@@ -49,7 +82,7 @@ const Services = () => {
           return arabicEndDate.includes(searchEndDate) // Search for Arabic month name in end-of-service date
         })
       }
-
+      setTotalPages(Math.ceil((totalServices as number) / ITEMS_PER_PAGE))
       setServices(filteredServices)
     }
 
@@ -84,14 +117,6 @@ const Services = () => {
     }
   }
 
-  const today = new Date().toISOString().split('T')[0] // Today's current date
-
-  const currentEmpolyee = {
-    name: JSON.parse(localStorage.getItem('employee_data') as string).full_name ?? null,
-    id: Number(JSON.parse(localStorage.getItem('employee_data') as string).id) ?? null,
-    role: JSON.parse(localStorage.getItem('employee_data') as string).role ?? 'employee'
-  }
-
   const getStatusTranslation = (status: any) => {
     switch (status) {
       case 'not-started':
@@ -102,27 +127,6 @@ const Services = () => {
         return 'اكتملت'
     }
   }
-
-  const [allClients, setAllClients] = useState<customerType[]>([])
-  const [allServices, setServices] = useState<serviceType[]>([])
-  const [allEmployees, setAllEmployees] = useState<empType[]>([])
-  const [formData, setFormData] = useState({
-    employee_id: currentEmpolyee.id,
-    representative_id: '',
-    client_id: '',
-    service_name: '',
-    service_total_price: '',
-    created_at: today,
-    ends_at: '',
-    service_details: '',
-    service_status: ''
-  })
-  const [searchServiceStatus, setSearchServiceStatus] = useState<string>('')
-  const [searchPaymentStatus, setSearchPaymentStatus] = useState<string>('')
-  const [alertMessage, setAlertMessage] = useState({ message: '', type: '' })
-  const [serviceAdded, setServiceAdded] = useState(false)
-  const [serviceDeleted, setServiceDeleted] = useState(false)
-  const [totalPages, setTotalPages] = useState(1)
 
   const handleChange = (e: { target: { name: any; value: any } }) => {
     const { name, value } = e.target
@@ -156,7 +160,8 @@ const Services = () => {
       ) || []
     )
 
-    setTotalPages(Math.ceil((totalServices as number) / ITEMS_PER_PAGE) + 1)
+    // Calculate total pages based on the total number of services
+    setTotalPages(Math.ceil((totalServices as number) / ITEMS_PER_PAGE))
   }
 
   const addService = async (e: { preventDefault: () => void }) => {
@@ -209,32 +214,6 @@ const Services = () => {
       })
     }
   }
-
-  useEffect(() => {
-    const getAllServices = async () => {
-      const { servicesForCurrentEmployee } = await fetchServices(currentPage, {
-        customerId: Number(customerId)
-      })
-
-      let filteredServices = servicesForCurrentEmployee || []
-
-      if (searchServiceStatus) {
-        filteredServices = filteredServices.filter((service: serviceType) => {
-          return service.service_status === searchServiceStatus
-        })
-      }
-
-      if (searchPaymentStatus) {
-        filteredServices = filteredServices.filter((service: serviceType) => {
-          return service.service_payment_status === searchPaymentStatus
-        })
-      }
-
-      setServices(filteredServices)
-    }
-
-    getAllServices()
-  }, [searchServiceStatus, searchPaymentStatus, customerId, currentPage])
 
   useEffect(() => {
     const allServices = async () => await getAllServices(currentPage)
@@ -498,82 +477,84 @@ const Services = () => {
                           ? service
                           : service.employee_id === currentEmpolyee.id
                       )
-                      .map((service, index) => (
-                        <tr
-                          key={index}
-                          style={{ backgroundColor: getServiceRowColor(service) }}
-                        >
-                          <td>{service.id}</td>
-                          <td>
-                            <span>
-                              {service.employeeName && service.employeeName.name}
-                            </span>
-                          </td>
-                          <td>
-                            {
-                              allClients.filter(
-                                client => client.id === service.client_id
-                              )[0]?.client_name
-                            }
-                          </td>
-                          <td>
-                            {
+                      .map((service, index) => {
+                        return (
+                          <tr
+                            key={index}
+                            style={{ backgroundColor: getServiceRowColor(service) }}
+                          >
+                            <td>{service.id}</td>
+                            <td>
                               <span>
-                                {service.representativeName &&
-                                  service.representativeName.name}
+                                {service.employeeName && service.employeeName.name}
                               </span>
-                            }
-                          </td>
-                          <td>{service.service_name}</td>
-                          <td>{service.service_total_price}</td>
-                          <td>
-                            {service.service_payment_status === 'paid'
-                              ? 'مدفوعة'
-                              : service.service_payment_status === 'partially-paid'
-                              ? 'مدفوعة جزئياً'
-                              : 'غير مدفوعة'}
-                          </td>
-                          <td>
-                            {
-                              service.receipts.length > 0 // If there are receipts
-                                ? service.receipts.reduce(
-                                    (acc, receipt) =>
-                                      Number(acc) + Number(receipt.service_paid_amount) ||
-                                      0,
-                                    0
-                                  ) // Sum of all receipts
-                                : 'لا يوجد' // If there are no receipts
-                            }
-                          </td>
-                          <td>{arabicDate(service.created_at)}</td>
-                          <td>{arabicDate(service.ends_at)}</td>
-                          <td>{service.service_details}</td>
-                          <td>{getStatusTranslation(service.service_status)}</td>
-                          <td>
-                            {/* Buttons for updating and deleting */}
-                            <Link
-                              style={{ margin: 10 }}
-                              to={`/service/${service.id}`}
-                              className='back-btn'
-                            >
-                              تحديث الخدمة
-                            </Link>
-                            {currentEmpolyee.role === 'admin' && (
-                              <button
+                            </td>
+                            <td>
+                              {
+                                allClients.filter(
+                                  client => client.id === service.client_id
+                                )[0]?.client_name
+                              }
+                            </td>
+                            <td>
+                              {
+                                <span>
+                                  {service.representativeName &&
+                                    service.representativeName.name}
+                                </span>
+                              }
+                            </td>
+                            <td>{service.service_name}</td>
+                            <td>{service.service_total_price}</td>
+                            <td>
+                              {service.service_payment_status === 'paid'
+                                ? 'مدفوعة'
+                                : service.service_payment_status === 'partially-paid'
+                                ? 'مدفوعة جزئياً'
+                                : 'غير مدفوعة'}
+                            </td>
+                            <td>
+                              {
+                                service.receipts.length > 0 // If there are receipts
+                                  ? service.receipts.reduce(
+                                      (acc, receipt) =>
+                                        Number(acc) +
+                                          Number(receipt.service_paid_amount) || 0,
+                                      0
+                                    ) // Sum of all receipts
+                                  : 'لا يوجد' // If there are no receipts
+                              }
+                            </td>
+                            <td>{arabicDate(service.created_at)}</td>
+                            <td>{arabicDate(service.ends_at)}</td>
+                            <td>{service.service_details}</td>
+                            <td>{getStatusTranslation(service.service_status)}</td>
+                            <td>
+                              {/* Buttons for updating and deleting */}
+                              <Link
                                 style={{ margin: 10 }}
-                                onClick={() => {
-                                  confirm(
-                                    'هل أنت متأكد من حذف الخدمة؟ لا يمكن التراجع عن هذا القرار.'
-                                  ) && deleteService(service.id)
-                                }}
-                                className='delete-btn'
+                                to={`/service/${service.id}`}
+                                className='back-btn'
                               >
-                                حذف
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))
+                                تحديث الخدمة
+                              </Link>
+                              {currentEmpolyee.role === 'admin' && (
+                                <button
+                                  style={{ margin: 10 }}
+                                  onClick={() => {
+                                    confirm(
+                                      'هل أنت متأكد من حذف الخدمة؟ لا يمكن التراجع عن هذا القرار.'
+                                    ) && deleteService(service.id)
+                                  }}
+                                  className='delete-btn'
+                                >
+                                  حذف
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        )
+                      })
                   )}
                 </tbody>
               </table>
