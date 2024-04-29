@@ -279,14 +279,14 @@ export default function Customers() {
 
         {allClients && allClients.length > 0 && (
           <div className='table-container'>
-            <Pagination
-              totalPages={totalPages}
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-            />
-
             <div className='table-container'>
               <div className='table-scroll-wrapper'>
+                <Pagination
+                  totalPages={totalPages}
+                  currentPage={currentPage}
+                  onPageChange={handlePageChange}
+                />
+
                 <table dir='rtl'>
                   <thead>
                     <tr>

@@ -155,7 +155,8 @@ const Services = () => {
           : service.employee_id === currentEmpolyee.id
       ) || []
     )
-    setTotalPages(Math.ceil((totalServices as number) / ITEMS_PER_PAGE))
+
+    setTotalPages(Math.ceil((totalServices as number) / ITEMS_PER_PAGE) + 1)
   }
 
   const addService = async (e: { preventDefault: () => void }) => {
@@ -459,6 +460,7 @@ const Services = () => {
               </form>
 
               <HomeButton />
+
               <Pagination
                 totalPages={totalPages}
                 currentPage={currentPage}
@@ -483,6 +485,7 @@ const Services = () => {
                     <th>العمليات</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {!allServices || allServices.length === 0 ? (
                     <tr>
