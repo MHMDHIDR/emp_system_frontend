@@ -77,7 +77,7 @@ const ServiceEdit = () => {
         setSubServices(JSON.parse(String(service[0].sub_services)))
 
         const getCustomers = async (page: number) => {
-          const response = await fetchCustomers(currentEmpolyee.id, page)
+          const response = await fetchCustomers(currentEmpolyee.id, page, true)
           const customersWithEmployeeName = response?.customersWithEmployeeName
 
           setAllClients(
@@ -220,6 +220,7 @@ const ServiceEdit = () => {
           <form dir='rtl' onSubmit={editService}>
             <label htmlFor='employee_id'>الموظف:</label>
             <span className='data-box'>{employeeName}</span>
+
             <label htmlFor='client_id'>العميل:</label>
             {allClients && allClients.length > 0 ? (
               <select

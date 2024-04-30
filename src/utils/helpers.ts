@@ -165,10 +165,17 @@ export const getClientName = async (customerId: number) => {
  * Method to get all of the clients in the system
  * @returns - list of clients
  * */
-export const fetchCustomers = async (currentEmpId: number, page?: number) => {
+export const fetchCustomers = async (
+  currentEmpId: number,
+  page?: number,
+  getAll?: boolean
+) => {
   try {
     const response = await axios.get(`${API_URL}/customers/${page ?? 1}`, {
-      params: { currentEmpId }
+      params: {
+        employeeId: currentEmpId,
+        getAll
+      }
     })
     const {
       rows: customers,
